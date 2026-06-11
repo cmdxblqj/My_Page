@@ -1,220 +1,150 @@
-# ◆ Smart Senpai · Orbital Experience
+# Orbital Experience
 
-> *「汝、我が名を呼べ。心の怪盗団、出陣せよ！」*
+基于轨道公转交互的个人主页，四个按钮沿椭圆轨道运行，滚轮/键盘旋转切换子页面。
 
----
-
-## 🎭 CALLING CARD
-
-**Orbital Experience** 是一款以 **ペルソナ5** 视觉美学为灵感的前端交互作品——将"轨道公转"作为核心交互范式，四颗按钮沿椭圆轨道运行，滚轮/键盘驱动旋转，每一个子页面都承载着不同的叙事氛围。
-
-| 属性 | 数值 |
-|------|------|
-| 🎨 **设计系統** | Persona 5 Pop Art · 极简唱片 · 幕布过渡 |
-| ⚡ **技术栈** | Vanilla JS · GSAP · marked.js · Google Fonts |
-| 📐 **分辨率** | 1920×1080 固定比例 · 全屏等比缩放 |
-| 🎵 **音频** | MP3 播放器 · 自定义歌单 |
-| 🚀 **部署** | GitHub Pages · Actions 自动构建 |
-
-> **美学宣言**：红蓝绿黄四色对应四个子页面。Pop art 遇上极简主义，大胆的调色板、粗边框、网点纹理——每一帧都是一张漫画面板。
+> 1920×1080 固定比例 · 全屏等比缩放 · GitHub Pages 自动部署
 
 ---
 
-## ◆ アーキテクチャ
+## 项目结构
 
 ```
 My_Page/
-├── index.html                   ★ 主入口 · 轨道页面 + 四个子页面内嵌
+├── index.html                # 主页面，内嵌四个子页面
 ├── css/
-│   ├── base.css                 # 全局变量 · 重置 · 背景 · 水面 · Pop层
-│   ├── orbital.css              # 轨道 · 按钮 · 控件 · 幕布 · 对角层
-│   ├── subpage1.css             # Persona 红色 · 个人介绍
-│   ├── subpage2.css             # Archive 蓝色 · 怪盗文庫
-│   ├── subpage3.css             # Codex  绿色 · 翠玉文庫
-│   ├── subpage4.css             # Gallery 黄色 · 反逆画廊
-│   └── responsive.css           # 响应式适配
+│   ├── base.css              # 全局变量、重置、背景
+│   ├── orbital.css           # 轨道、按钮、控件栏、过渡层
+│   ├── subpage1.css          # Subpage 1 · 红色
+│   ├── subpage2.css          # Subpage 2 · 蓝色
+│   ├── subpage3.css          # Subpage 3 · 绿色
+│   ├── subpage4.css          # Subpage 4 · 黄色
+│   └── responsive.css        # 响应式
 ├── js/
-│   ├── app.js                   ★ 核心引擎 · 轨道物理 · 吸附 · 过渡 · 播放器
-│   └── data.js                  🤖 自动生成 · 文章/画廊数据
-├── content/                     ★ 内容目录 · 丢文件即可更新
-│   ├── archive/                 # → Subpage 2 · 怪盗文庫
-│   ├── codex/                   # → Subpage 3 · 翠玉文庫
-│   └── gallery/                 # → Subpage 4 · 反逆画廊
+│   ├── app.js                # 核心逻辑：轨道、吸附、过渡、播放器、搜索
+│   └── data.js               # 自动生成，文章及图片数据
+├── content/                  # 内容文件（编辑这里即可更新页面）
+│   ├── archive/              # Subpage 2 文章（.md）
+│   ├── codex/                # Subpage 3 文章（.md）
+│   └── gallery/              # Subpage 4 图片（图片文件 / .json 元数据）
 ├── scripts/
-│   └── build-content.js         ★ 构建脚本 · md/json → data.js
-├── .github/workflows/
-│   └── deploy.yml               ★ CI/CD · push 即部署
-├── audio/                       # 音乐资源
-└── back.webp / but*.webp        # 视觉资源
+│   └── build-content.js      # 构建脚本：扫描 content/ → 生成 js/data.js
+├── audio/                    # 音乐文件
+└── .github/workflows/
+    └── deploy.yml            # GitHub Actions 自动部署
 ```
 
 ---
 
-## 🪐 轨道力学
+## 四个子页面
 
-### 核心参数
-
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| `CANVAS_W × H` | 1920 × 1080 | 设计分辨率 |
-| `CENTER` | (288, 885.6) | 圆心偏左下 |
-| `RADIUS` | 1248px | 轨道半径 |
-| `BTN_SIZE` | 420px | 按钮图原始尺寸 |
-| `INITIAL_ANGLE` | 60° | 初始旋转角 |
-| `SNAP_EFFECTIVE_ANGLE` | 20° | 稳定视角偏移 |
-
-### 吸附逻辑
-
-```
-滚动停止 → 找到最近稳定角
-  ├─ 距离 ≤ 5° → 弹回原位（归位）
-  └─ 距离 > 5° → 方向吸附（换下一个按钮）
-```
-
-### 四个稳定角度
-
-| 角度 | 稳定按钮 | 子页面 |
-|------|----------|--------|
-| **20°** | Gallery · but4 | Subpage 4 · 黄色 |
-| **110°** | Persona · but1 | Subpage 1 · 红色 |
-| **200°** | Archive · but2 | Subpage 2 · 蓝色 |
-| **290°** | Codex · but3 | Subpage 3 · 绿色 |
+| 页面 | 标题 | 颜色 | 内容 | 数据来源 |
+|------|------|------|------|----------|
+| Subpage 1 | Persona | 红色 | 个人信息 | index.html 内嵌 HTML |
+| Subpage 2 | 先輩文庫 | 蓝色 | 文章阅读器 | `content/archive/*.md` |
+| Subpage 3 | 後輩寶庫 | 绿色 | 文章阅读器 | `content/codex/*.md` |
+| Subpage 4 | 真實的走廊 | 黄色 | 胶片画廊 | `content/gallery/` |
 
 ---
 
-## 🎨 四个子页面
+## 添加内容
 
-### 🔴 Subpage 1 · Persona — `Take Your Heart`
+### Subpage 2 / 3 — 文章
 
-> 个人信息页 · 红色朋克 · 漫画面板 · 星级评定
+在 `content/archive/` 或 `content/codex/` 下新建 `.md` 文件，使用 YAML 前置元数据：
 
-- 静态 HTML 内嵌于 `index.html`
-- 滚动驱动淡入淡出动画
-- 特质卡片 + 联系方式
-
-### 🔵 Subpage 2 · 怪盗文庫 — `Take Your Wisdom`
-
-> 蓝色档案 · Markdown 阅读器 · 文章列表
-
-```yaml
-# content/archive/*.md 格式
+```markdown
 ---
-id: mission-01
-title: 心の怪盗団 · 最初の任務
+id: my-post
+title: 文章标题
 date: 2026.06.01
-cover: 🎭
-tags: [使命, 怪盗]
-excerpt: 最初のパレスへの潜入…
+time: 14:30
+cover: 📝
+tags: [标签1, 标签2]
+excerpt: 一句话摘要
 ---
-# Markdown 正文…
+
+# 正文标题
+
+正文内容，支持完整 Markdown 语法（GFM）……
 ```
 
-### 🟢 Subpage 3 · 翠玉文庫 — `Take Your Wealth`
+- `id` 必填，唯一标识
+- 正文支持标题、表格、代码块、引用、列表、图片
+- 按 `date` 降序排列
 
-> 绿色资料库 · 波纹过渡 · 资源笔记
+### Subpage 4 — 图片
 
-- 与 Archive 结构相同，独立数据源
-- `content/codex/*.md` 驱动
+**方式一**：直接把图片丢进 `content/gallery/`，自动生成标题。
 
-### 🟡 Subpage 4 · 反逆画廊 — `Take Your Vision`
-
-> 黄色画廊 · 胶片灯箱 · 3D 倾斜
+**方式二**：加同名 `.json` 自定义元数据：
 
 ```json
-// content/gallery/custom.json
 {
-  "src": "path/to/image.jpg",
-  "title": "覚醒の刻",
-  "caption": "Awakening"
+  "src": "https://example.com/photo.jpg",
+  "title": "图片标题",
+  "sub": "副标题",
+  "caption": "说明文字"
 }
 ```
 
----
+- 本地图片 `src` 填相对路径，如 `content/gallery/photo.jpg`
+- 远程图片直接填 URL
+- JSON 的 `src` 会覆盖自动检测
 
-## 🎛️ MP3 播放器
+### 本地预览
 
-| 按键 | 行为 |
-|------|------|
-| `M` | 播放 / 暂停 |
-| `Ctrl+←` | 上一首 |
-| `Ctrl+→` | 下一首 |
-
-```javascript
-// audio/ 目录下添加音乐，然后在 app.js 注册：
-const AUDIO_PLAYLIST = [
-  { title:'Fabulous', artist:'BLU-SWING', src:'audio/xxx.mp3' }
-];
+```bash
+node scripts/build-content.js   # 生成 js/data.js
+# 浏览器打开 index.html
 ```
 
 ---
 
-## ⌨️ 完整键位表
+## 键盘 & 交互
 
-| 按键 | 页面 | 行为 |
+| 操作 | 页面 | 行为 |
 |------|------|------|
-| `↓` / `↑` | 轨道 | 直接吸附到下一个/上一个图标 |
-| `Esc` | 子页面 | 返回轨道主界面 |
-| `Esc` | 灯箱 | 关闭灯箱（再按返回轨道） |
-| `Esc` | 搜索框 | 清空搜索 |
-| `Enter` | 搜索框 | 执行搜索 |
-| `←` / `→` | 灯箱 | 上一张/下一张图片 |
+| 滚轮 | 轨道 | 旋转轨道，停止后自动吸附 |
+| `↓` / `↑` | 轨道 | 直接切换到下一个/上一个图标 |
+| `Esc` | 子页面 | 返回轨道（子页面回到初始状态） |
+| `Esc` | 画廊灯箱 | 关闭灯箱 |
+| `←` / `→` / `↑` / `↓` | 画廊灯箱 | 上一张/下一张 |
 | `M` | 全局 | 音乐播放/暂停 |
-| `Ctrl+←/→` | 全局 | 切歌 |
-| 滚轮 | 轨道 | 旋转轨道 |
+| `Ctrl` + `←` / `→` | 全局 | 上一首/下一首 |
+
+### 搜索栏
+
+子页面 2/3/4 中顶栏右侧出现搜索框，按文章/图片标题过滤，支持 `Enter` 键和点击搜索按钮。
 
 ---
 
-## 🚀 自动部署
+## 轨道吸附
 
-```
-写 .md 丢图片 → git push → GitHub Actions → 网页更新
-                                    │
-                         ① checkout 代码
-                         ② node scripts/build-content.js
-                         ③ 部署到 gh-pages 分支
-```
+滚动停止后自动吸附到最近的"稳定角"，确保始终有一个按钮居中展示。
 
-### 添加文章
+- **阈值**：偏离稳定角 ≤ 5° → 弹回原位；> 5° → 吸附到下一个
+- 箭头键直接跳转，不受阈值限制
+
+---
+
+## 自动部署
+
+`git push` 到 `master` 分支后，GitHub Actions 自动运行 `scripts/build-content.js` 并将最新内容部署到 GitHub Pages。
 
 ```bash
-# 1. 创建 md 文件
-vim content/archive/my-post.md
-
-# 2. 本地预览
-node scripts/build-content.js
-# 打开 index.html
-
-# 3. 推送
-git add content/ && git commit -m "新文章" && git push
+git add content/
+git commit -m "更新内容"
+git push
 ```
 
-### 添加图片
-
-```bash
-# 直接丢进 content/gallery/
-cp photo.jpg content/gallery/
-# 可选：加同名 .json 自定义标题
-echo '{"title":"觉醒","caption":"Awakening"}' > content/gallery/photo.json
-git add content/gallery/ && git commit -m "新图片" && git push
-```
+首次使用需在仓库 Settings → Pages 中将 Source 设为 `gh-pages` 分支。
 
 ---
 
-## 🧬 技术亮点
+## 技术栈
 
-| 模块 | 技术 |
-|------|------|
-| 轨道渲染 | JS 三角函数定位 + `requestAnimationFrame` |
-| 吸附系统 | 360° 环绕双向优先最近算法 + 5° 阈值 |
-| 水面过渡 | Canvas 2D · 分形噪声 · 多边形网格 · 网点图案 |
-| Pop 过渡 | CSS columns + GSAP 交错动画 |
-| 幕布过渡 | Canvas 纹理生成 · 正弦波纹 · 缓动曲线 |
-| 对角过渡 | SVG mask 水圆扩散 · Turbulence 滤镜 |
-| Markdown | marked.js GFM 渲染 · P5 风格定制 CSS |
-
----
-
-> *「俺たちは、心の怪盗団だ。」*  
-> — Joker · Persona 5
-
-◆ **TAKE YOUR HEART** ◆
+- **JavaScript**：Vanilla JS（ES6+），无框架
+- **动画**：GSAP（过渡动画）、CSS @keyframes
+- **Markdown**：marked.js（GFM 渲染）
+- **字体**：Google Fonts（Syne, DM Sans, Bebas Neue, JetBrains Mono 等）
+- **部署**：GitHub Pages + Actions
