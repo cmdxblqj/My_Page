@@ -1,8 +1,9 @@
-# Orbital Experience
+# Smart Senpai · 个人主页
 
-基于轨道公转交互的个人主页，四个按钮沿椭圆轨道运行，滚轮/键盘旋转切换子页面。
+基于轨道公转交互的个人网页。四个按钮沿椭圆轨道运行，滚轮/键盘旋转切换子页面。
 
-> 1920×1080 固定比例 · 全屏等比缩放 · GitHub Pages 自动部署
+> 1920×1080 固定比例 · 全屏等比缩放 · GitHub Pages 自动部署  
+> 主界面设计参考了 [P5 Style Guide](https://www.youtube.com/watch?v=7I9yZq1oNoY)（粉丝制作），其余内容为 AI 生成。
 
 ---
 
