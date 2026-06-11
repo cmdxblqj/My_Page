@@ -24,9 +24,9 @@
     cursor:default; user-select:none; -webkit-user-select:none; }
 
   /* ═══ BODY-LEVEL BACKGROUNDS (shared) ═══ */
-  .bg-layer{ position:fixed; inset:0; z-index:0; background-image:url('../back.png');
+  .bg-layer{ position:fixed; inset:0; z-index:0; background-image:url('../back.webp');
     background-size:cover; background-position:center; background-repeat:no-repeat; background-color:#0a0a10; }
-  .bg-wave{ position:fixed; inset:0; z-index:1; background-image:url('../back.png');
+  .bg-wave{ position:fixed; inset:0; z-index:1; background-image:url('../back.webp');
     background-size:cover; background-position:center; background-repeat:no-repeat;
     pointer-events:none; filter:url(#waveDistort); clip-path:circle(0% at 0% 0%);
     animation:wave-sweep 10s ease-in-out infinite; }

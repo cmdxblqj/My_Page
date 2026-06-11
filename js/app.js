@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════ ORBITAL CONFIG ═══════════════════════════════════ */
 const CANVAS_W=1920,CANVAS_H=1080,CENTER_X=CANVAS_W*0.15,CENTER_Y=CANVAS_H*0.82,RADIUS=CANVAS_W*0.65,BTN_SIZE=420,FADE_MARGIN=220,ANGLE_SENSITIVITY=0.08,LERP_FACTOR=0.12,INITIAL_ANGLE=60,SNAP_EFFECTIVE_ANGLE=20,SNAP_DURATION=800,SNAP_COOLDOWN=1200,SCROLL_STOP_DELAY=500;
-const BUTTON_DEFS=[{dataId:1,img:'but4.png',baseAngle:0},{dataId:2,img:'but3.png',baseAngle:90},{dataId:3,img:'but2.png',baseAngle:180},{dataId:4,img:'but1.png',baseAngle:270}];
+const BUTTON_DEFS=[{dataId:1,img:'but4.webp',baseAngle:0},{dataId:2,img:'but3.webp',baseAngle:90},{dataId:3,img:'but2.webp',baseAngle:180},{dataId:4,img:'but1.webp',baseAngle:270}];
 let targetAngle=INITIAL_ANGLE,currentAngle=INITIAL_ANGLE,btnDataList=[],hasScrolled=false,lastScrollTime=0,lastScrollDir=0,scrollStopTimer=null,lastSnapTime=0,snapActive=false,snapStartAngle=0,snapTargetAngleVal=0,snapStartTime=0;
-const appWrapper=document.getElementById('appWrapper'),buttonsLayer=document.getElementById('buttonsLayer'),scrollHint=document.getElementById('scrollHint'),discIcon=document.getElementById('discIcon'),musicToggle=document.getElementById('musicToggle'),bgMusic=document.getElementById('bgMusic'),angleDisplay=document.getElementById('angleDisplay'),escButton=document.getElementById('escButton'),subpageOverlay=document.getElementById('subpageOverlay'),subpage2Overlay=document.getElementById('subpage2Overlay'),subpage3Overlay=document.getElementById('subpage3Overlay'),subpage4Overlay=document.getElementById('subpage4Overlay'),waterCanvas=document.getElementById('waterCanvas'),popOverlay=document.getElementById('popTransitionOverlay');
+const appWrapper=document.getElementById('appWrapper'),buttonsLayer=document.getElementById('buttonsLayer'),scrollHint=document.getElementById('scrollHint'),bgMusic=document.getElementById('bgMusic'),angleDisplay=document.getElementById('angleDisplay'),escButton=document.getElementById('escButton'),subpageOverlay=document.getElementById('subpageOverlay'),subpage2Overlay=document.getElementById('subpage2Overlay'),subpage3Overlay=document.getElementById('subpage3Overlay'),subpage4Overlay=document.getElementById('subpage4Overlay'),waterCanvas=document.getElementById('waterCanvas'),popOverlay=document.getElementById('popTransitionOverlay');
 
 /* ═══════════════════════════════════ ORBITAL BUTTONS ═══════════════════════════════════ */
 function buildButtons(){const N='http://www.w3.org/2000/svg';BUTTON_DEFS.forEach(d=>{const w=document.createElement('div');w.className='btn-wrapper';const s=document.createElementNS(N,'svg');s.setAttribute('class','btn-orbit');s.setAttribute('data-id',String(d.dataId));s.setAttribute('viewBox','0 0 800 800');const i=document.createElementNS(N,'image');i.setAttribute('href',d.img);i.setAttribute('width','800');i.setAttribute('height','800');i.setAttribute('preserveAspectRatio','xMidYMid meet');i.style.pointerEvents='inherit';s.appendChild(i);w.appendChild(s);buttonsLayer.appendChild(w);
@@ -25,15 +25,49 @@ function dismissScrollHint(){if(!scrollHint||hasScrolled)return;hasScrolled=true
 function orbitalAnimate(ts){if(snapActive){const e=ts-snapStartTime,p=Math.min(1,e/SNAP_DURATION),v=1-Math.pow(1-p,3);currentAngle=snapStartAngle+(snapTargetAngleVal-snapStartAngle)*v;if(p>=1){currentAngle=snapTargetAngleVal;targetAngle=snapTargetAngleVal;snapActive=false;}}else{currentAngle+=(targetAngle-currentAngle)*LERP_FACTOR;if(Math.abs(targetAngle-currentAngle)<0.001)currentAngle=targetAngle;}updateAllButtons(currentAngle);requestAnimationFrame(orbitalAnimate);}
 
 /* ═══════════════════════════════════ INPUT HANDLERS ═══════════════════════════════════ */
-function initScrollHandler(){window.addEventListener('wheel',function(e){if(currentPage!=='orbital')return;e.preventDefault();if(!hasScrolled)dismissScrollHint();cancelSnap();lastScrollDir=e.deltaY>0?1:-1;lastScrollTime=performance.now();targetAngle+=e.deltaY*ANGLE_SENSITIVITY;scheduleSnapCheck();},{passive:false});}
-function initKeyboardHandler(){window.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();if(currentPage==='persona')triggerWaterTransition('toOrbital');else if(currentPage==='archive')triggerPopTransition('toOrbital');else if(currentPage==='codex')triggerCurtainTransition('toOrbital');else if(currentPage==='gallery')triggerDiagTransition('toOrbital');return;}if(currentPage!=='orbital')return;if(e.key==='ArrowDown'){e.preventDefault();if(!hasScrolled)dismissScrollHint();cancelSnap();lastScrollDir=1;targetAngle+=40*ANGLE_SENSITIVITY;scheduleSnapCheck();}else if(e.key==='ArrowUp'){e.preventDefault();if(!hasScrolled)dismissScrollHint();cancelSnap();lastScrollDir=-1;targetAngle-=40*ANGLE_SENSITIVITY;scheduleSnapCheck();}});}
-function initTouchHandler(){let tY=0;window.addEventListener('touchstart',function(e){tY=e.touches[0].clientY;},{passive:true});window.addEventListener('touchmove',function(e){if(currentPage!=='orbital')return;const dy=tY-e.touches[0].clientY;tY=e.touches[0].clientY;if(!hasScrolled&&Math.abs(dy)>2)dismissScrollHint();cancelSnap();lastScrollDir=dy>0?1:-1;targetAngle+=dy*ANGLE_SENSITIVITY*0.6;scheduleSnapCheck();},{passive:true});window.addEventListener('touchend',function(){if(currentPage!=='orbital')return;scheduleSnapCheck();},{passive:true});}
+function initScrollHandler(){window.addEventListener('wheel',function(e){if(currentPage!=='orbital')return;e.preventDefault();if(!hasScrolled)dismissScrollHint();cancelSnap();const newDir=e.deltaY>0?1:-1;if(newDir!==lastScrollDir){lastSnapTime=performance.now();}lastScrollDir=newDir;lastScrollTime=performance.now();targetAngle+=e.deltaY*ANGLE_SENSITIVITY;scheduleSnapCheck();},{passive:false});}
+function initKeyboardHandler(){window.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();if(currentPage==='persona')triggerWaterTransition('toOrbital');else if(currentPage==='archive')triggerPopTransition('toOrbital');else if(currentPage==='codex')triggerCurtainTransition('toOrbital');else if(currentPage==='gallery')triggerDiagTransition('toOrbital');return;}if(currentPage!=='orbital')return;if(e.key==='ArrowDown'){e.preventDefault();if(!hasScrolled)dismissScrollHint();cancelSnap();if(lastScrollDir!==1){lastSnapTime=performance.now();}lastScrollDir=1;targetAngle+=40*ANGLE_SENSITIVITY;scheduleSnapCheck();}else if(e.key==='ArrowUp'){e.preventDefault();if(!hasScrolled)dismissScrollHint();cancelSnap();if(lastScrollDir!==-1){lastSnapTime=performance.now();}lastScrollDir=-1;targetAngle-=40*ANGLE_SENSITIVITY;scheduleSnapCheck();}});}
+function initTouchHandler(){let tY=0;window.addEventListener('touchstart',function(e){tY=e.touches[0].clientY;},{passive:true});window.addEventListener('touchmove',function(e){if(currentPage!=='orbital')return;const dy=tY-e.touches[0].clientY;tY=e.touches[0].clientY;if(!hasScrolled&&Math.abs(dy)>2)dismissScrollHint();cancelSnap();const newDir=dy>0?1:-1;if(newDir!==lastScrollDir){lastSnapTime=performance.now();}lastScrollDir=newDir;targetAngle+=dy*ANGLE_SENSITIVITY*0.6;scheduleSnapCheck();},{passive:true});window.addEventListener('touchend',function(){if(currentPage!=='orbital')return;scheduleSnapCheck();},{passive:true});}
 function applyScale(){if(!appWrapper)return;const s=Math.min(window.innerWidth/CANVAS_W,window.innerHeight/CANVAS_H);appWrapper.style.transform=`translate(-50%,-50%) scale(${s})`;}
 function initResizeHandler(){let t;window.addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(applyScale,80);});window.addEventListener('orientationchange',()=>{setTimeout(applyScale,300);});}
 
-/* ═══════════════════════════════════ MUSIC ═══════════════════════════════════ */
-let musicPlaying=false;
-function initMusicControl(){if(!musicToggle||!bgMusic||!discIcon)return;musicToggle.addEventListener('click',function(e){e.stopPropagation();if(musicPlaying){bgMusic.pause();discIcon.classList.remove('spinning');discIcon.classList.add('paused');musicPlaying=false;}else{bgMusic.play().then(()=>{discIcon.classList.remove('paused');discIcon.classList.add('spinning');musicPlaying=true;}).catch(()=>{discIcon.classList.remove('paused');discIcon.classList.add('spinning');musicPlaying=true;setTimeout(()=>{discIcon.classList.remove('spinning');discIcon.classList.add('paused');musicPlaying=false;},1500);});}});window.addEventListener('keydown',function(e){if((e.key==='m'||e.key==='M')&&document.activeElement===document.body)musicToggle.click();});}
+/* ═══════════════════════════════════ MP3 PLAYER ═══════════════════════════════════ */
+const AUDIO_PLAYLIST=[
+  {title:'Fabulous',artist:'BLU-SWING',src:'audio/BLU-SWING - Fabulous.mp3'}
+];
+let musicPlaying=false,currentTrackIdx=0;
+const mp3Player=document.getElementById('mp3Player'),mp3PlayBtn=document.getElementById('mp3Play'),
+  mp3PrevBtn=document.getElementById('mp3Prev'),mp3NextBtn=document.getElementById('mp3Next'),
+  mp3TrackTitle=document.getElementById('mp3TrackTitle'),mp3TrackArtist=document.getElementById('mp3TrackArtist'),
+  mp3TrackPos=document.getElementById('mp3TrackPos');
+function updateMp3Info(){const t=AUDIO_PLAYLIST[currentTrackIdx];if(!t)return;
+mp3TrackTitle.textContent=t.title;mp3TrackArtist.textContent=t.artist;
+mp3TrackPos.textContent='TRACK '+(currentTrackIdx+1)+'/'+AUDIO_PLAYLIST.length;}
+function loadTrack(idx){currentTrackIdx=((idx%AUDIO_PLAYLIST.length)+AUDIO_PLAYLIST.length)%AUDIO_PLAYLIST.length;
+const t=AUDIO_PLAYLIST[currentTrackIdx];bgMusic.querySelector('source').src=t.src;bgMusic.load();updateMp3Info();
+if(musicPlaying){bgMusic.play().catch(()=>{setMp3Playing(false);});}}
+function setMp3Playing(p){musicPlaying=p;
+if(p){mp3Player.classList.add('playing');}else{mp3Player.classList.remove('playing');}}
+function togglePlay(){if(musicPlaying){bgMusic.pause();setMp3Playing(false);}else{
+bgMusic.play().then(()=>setMp3Playing(true)).catch(()=>{setMp3Playing(true);
+setTimeout(()=>setMp3Playing(false),1500);});}}
+function playPrev(){loadTrack(currentTrackIdx-1);}
+function playNext(){loadTrack(currentTrackIdx+1);}
+function initMusicControl(){
+if(!mp3PlayBtn||!bgMusic)return;
+mp3PlayBtn.addEventListener('click',e=>{e.stopPropagation();togglePlay();});
+mp3PrevBtn.addEventListener('click',e=>{e.stopPropagation();playPrev();});
+mp3NextBtn.addEventListener('click',e=>{e.stopPropagation();playNext();});
+bgMusic.addEventListener('ended',()=>{playNext();});
+bgMusic.addEventListener('play',()=>setMp3Playing(true));
+bgMusic.addEventListener('pause',()=>{if(!bgMusic.ended)setMp3Playing(false);});
+window.addEventListener('keydown',function(e){
+if((e.key==='m'||e.key==='M')&&document.activeElement===document.body)togglePlay();
+if(e.key==='ArrowLeft'&&e.ctrlKey&&document.activeElement===document.body){e.preventDefault();playPrev();}
+if(e.key==='ArrowRight'&&e.ctrlKey&&document.activeElement===document.body){e.preventDefault();playNext();}
+});
+updateMp3Info();setMp3Playing(false);
+}
 
 /* ═══════════════════════════════════ ESC BUTTON ═══════════════════════════════════ */
 function initEscButton(){if(!escButton)return;escButton.addEventListener('click',function(e){e.stopPropagation();if(currentPage==='persona')triggerWaterTransition('toOrbital');else if(currentPage==='archive')triggerPopTransition('toOrbital');else if(currentPage==='codex')triggerCurtainTransition('toOrbital');else if(currentPage==='gallery')triggerDiagTransition('toOrbital');});}
@@ -218,8 +252,15 @@ function initGallery(){renderGallery();document.getElementById('lightboxClose4')
 
 /* ═══════════════════════════════════ INIT ═══════════════════════════════════ */
 const fixedControls=document.querySelector('.fixed-controls');
+/* ═══════════════════════════════════ SPLASH SCREEN ═══════════════════════════════════ */
+function initSplashScreen(){const splash=document.getElementById('splashScreen');if(!splash)return;
+window.addEventListener('load',()=>{
+setTimeout(()=>{splash.classList.add('fade-out');
+setTimeout(()=>{if(splash.parentNode)splash.parentNode.removeChild(splash);},700);
+initFadeIn();},400);
+});}
 function initFadeIn(){appWrapper.classList.add('visible');if(angleDisplay)angleDisplay.classList.add('revealed');setTimeout(revealScrollHint,300);if(fixedControls){fixedControls.classList.add('revealed');setTimeout(()=>fixedControls.classList.remove('revealed'),2200);}}
-function init(){buildButtons();applyScale();initScrollHandler();initKeyboardHandler();initTouchHandler();initResizeHandler();initMusicControl();initEscButton();initPersonaScroll();initSparkle();initArchive();initCodex();initGallery();curtResize();window.addEventListener('load',initFadeIn);updateAllButtons(currentAngle);requestAnimationFrame(orbitalAnimate);resizeWaterCanvas();window.addEventListener('resize',resizeWaterCanvas);requestAnimationFrame(waterAnimate);updatePersonaSections();}
+function init(){buildButtons();applyScale();initScrollHandler();initKeyboardHandler();initTouchHandler();initResizeHandler();initMusicControl();initEscButton();initPersonaScroll();initSparkle();initArchive();initCodex();initGallery();curtResize();initSplashScreen();updateAllButtons(currentAngle);requestAnimationFrame(orbitalAnimate);resizeWaterCanvas();window.addEventListener('resize',resizeWaterCanvas);requestAnimationFrame(waterAnimate);updatePersonaSections();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 
-window.OrbitalExperience={getButtons:()=>btnDataList,getWrapper:()=>appWrapper,getAngle:()=>currentAngle,setTargetAngle:a=>{targetAngle=a;},toggleMusic:()=>{if(musicToggle)musicToggle.click();},isMusicPlaying:()=>musicPlaying,refreshScale:applyScale,isSnapActive:()=>snapActive,hasScrolled:()=>hasScrolled,getCurrentPage:()=>currentPage,goToPersona:()=>{if(currentPage!=='persona')triggerWaterTransition('toPersona');},goToArchive:()=>{if(currentPage!=='archive')triggerPopTransition('toArchive');},goToCodex:()=>{if(currentPage!=='codex')triggerCurtainTransition('toCodex');},goToGallery:()=>{if(currentPage!=='gallery')triggerDiagTransition('toGallery');},goToOrbital:()=>{if(currentPage==='persona')triggerWaterTransition('toOrbital');else if(currentPage==='archive')triggerPopTransition('toOrbital');else if(currentPage==='codex')triggerCurtainTransition('toOrbital');else if(currentPage==='gallery')triggerDiagTransition('toOrbital');}};
+window.OrbitalExperience={getButtons:()=>btnDataList,getWrapper:()=>appWrapper,getAngle:()=>currentAngle,setTargetAngle:a=>{targetAngle=a;},toggleMusic:()=>{togglePlay();},isMusicPlaying:()=>musicPlaying,getCurrentTrack:()=>currentTrackIdx,getPlaylist:()=>AUDIO_PLAYLIST,nextTrack:()=>playNext(),prevTrack:()=>playPrev(),refreshScale:applyScale,isSnapActive:()=>snapActive,hasScrolled:()=>hasScrolled,getCurrentPage:()=>currentPage,goToPersona:()=>{if(currentPage!=='persona')triggerWaterTransition('toPersona');},goToArchive:()=>{if(currentPage!=='archive')triggerPopTransition('toArchive');},goToCodex:()=>{if(currentPage!=='codex')triggerCurtainTransition('toCodex');},goToGallery:()=>{if(currentPage!=='gallery')triggerDiagTransition('toGallery');},goToOrbital:()=>{if(currentPage==='persona')triggerWaterTransition('toOrbital');else if(currentPage==='archive')triggerPopTransition('toOrbital');else if(currentPage==='codex')triggerCurtainTransition('toOrbital');else if(currentPage==='gallery')triggerDiagTransition('toOrbital');}};

@@ -44,28 +44,28 @@
   .subpage2-overlay .drip:nth-child(2){animation-delay:1.5s;height:25px;margin-left:8px}
   .subpage2-overlay .drip:nth-child(3){animation-delay:1.8s;height:50px;margin-left:-4px}
   .subpage2-overlay .p5-diamond{ width:12px; height:12px; background:var(--blue-bright); transform:rotate(45deg);
-    display:inline-block; flex-shrink:0; animation:diamondSpinBlue 1.2s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity:0; }
+    display:inline-block; flex-shrink:0; animation:diamondSpinBlue 1.2s cubic-bezier(0.4,0,0.2,1) forwards; opacity:0; }
   .subpage2-overlay .p5-diamond.small{ width:8px; height:8px; }
   .subpage2-overlay .p5-diamond.gold{ background:var(--gold); }
   .subpage2-overlay .p5-diamond.sky{ background:var(--sky-bright); }
   .subpage2-overlay .app-layout{ display:flex; gap:0; padding:1.5rem; min-height:100vh; align-items:center; position:relative; z-index:1; }
   .subpage2-overlay .app-layout.reader-open{ align-items:flex-start; }
-  .subpage2-overlay .layout-spacer{ transition:flex 0.55s cubic-bezier(0.34,1.56,0.64,1); }
+  .subpage2-overlay .layout-spacer{ transition:flex 0.55s cubic-bezier(0.4,0,0.2,1); }
   .subpage2-overlay .app-layout:not(.reader-open) .layout-spacer{ flex:1; }
   .subpage2-overlay .app-layout.reader-open .layout-spacer{ flex:0; }
-  .subpage2-overlay .layout-spacer-right{ transition:flex 0.55s cubic-bezier(0.34,1.56,0.64,1); }
+  .subpage2-overlay .layout-spacer-right{ transition:flex 0.55s cubic-bezier(0.4,0,0.2,1); }
   .subpage2-overlay .app-layout:not(.reader-open) .layout-spacer-right{ flex:1; }
   .subpage2-overlay .app-layout.reader-open .layout-spacer-right{ flex:0; }
   .subpage2-overlay .article-panel{ width:620px; max-width:92vw; flex-shrink:0;
-    transition:width 0.55s cubic-bezier(0.34,1.56,0.64,1),margin 0.55s cubic-bezier(0.34,1.56,0.64,1); position:relative; }
+    transition:width 0.55s cubic-bezier(0.4,0,0.2,1),margin 0.55s cubic-bezier(0.4,0,0.2,1); position:relative; }
   .subpage2-overlay .app-layout.reader-open .article-panel{ width:380px; margin-right:1.5rem; }
   .subpage2-overlay .app-layout.reader-open .article-btn{ padding:1rem 1.2rem; }
   .subpage2-overlay .app-layout.reader-open .article-btn .art-cover-icon{ width:40px; height:40px; font-size:1.2rem; }
   .subpage2-overlay .app-layout.reader-open .article-btn .art-title{ font-size:1.15rem; }
   .subpage2-overlay .app-layout.reader-open .article-btn .art-excerpt{ font-size:0.78rem; }
   .subpage2-overlay .reader-panel{ flex:0; width:0; opacity:0; overflow:hidden; transform:translateX(50px);
-    transition:flex 0.55s cubic-bezier(0.34,1.56,0.64,1),opacity 0.45s cubic-bezier(0.34,1.56,0.64,1) 0.05s,
-      transform 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.05s;
+    transition:flex 0.55s cubic-bezier(0.4,0,0.2,1),opacity 0.45s cubic-bezier(0.4,0,0.2,1) 0.05s,
+      transform 0.5s cubic-bezier(0.4,0,0.2,1) 0.05s;
     max-height:calc(100vh - 3rem); position:sticky; top:1.5rem; }
   .subpage2-overlay .app-layout.reader-open .reader-panel{ flex:1; width:auto; opacity:1; transform:translateX(0);
     overflow-y:auto; overflow-x:hidden; }
@@ -100,7 +100,7 @@
     padding:1.3rem 1.5rem; position:relative; cursor:pointer; text-align:left;
     color:#e8ecf4; font-family:var(--font-body);
     box-shadow:6px 6px 0 rgba(0,0,0,0.85),10px 10px 0 rgba(0,71,224,0.08);
-    transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); overflow:hidden; }
+    transition:all 0.3s cubic-bezier(0.4,0,0.2,1); overflow:hidden; }
   .subpage2-overlay .article-btn::before{ content:''; position:absolute; top:6px; left:6px; right:6px; height:3px;
     background:repeating-linear-gradient(90deg,var(--blue-bright) 0px,var(--blue-bright) 3px,transparent 3px,transparent 6px);
     opacity:0; transition:opacity 0.3s ease; }
