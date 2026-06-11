@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REBEL FILM · 反逆の画廊</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fredoka:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════
+       CSS CUSTOM PROPERTIES — Yellow Rebel palette
+       ═══════════════════════════════════════════ */
+    :root {
+      /* Deep backgrounds */
+      --bg-deep: #0d0a04;
+      --bg-card: #0a0803;
+      --bg-reader: #0f0c05;
+
+      /* Yellow family — P5 gold */
+      --yellow-deep: #8B7500;
+      --yellow-dark: #A68A00;
+      --yellow-primary: #C8A200;
+      --yellow-bright: #E6BE00;
+      --yellow-neon: #FFD700;
+      --yellow-electric: #FFC107;
+      --yellow-pale: #ffe69c;
+      --yellow-warm: #f5e6b8;
+
+      /* Gold accents */
+      --gold: #FFD700;
+      --gold-bright: #FFE44D;
+      --gold-pale: #FFF3B0;
+
+      /* Neutrals */
+      --white-soft: #f0ede4;
+      --white-warm: #f5f2eb;
+      --black-pure: #000000;
+      --black-soft: #0d0a06;
+
+      /* Fonts */
+      --font-display: 'Bebas Neue', 'Noto Sans SC', sans-serif;
+      --font-body: 'DM Sans', 'Noto Sans SC', sans-serif;
+      --font-accent: 'Fredoka', cursive;
+      --font-mono: 'JetBrains Mono', 'Noto Sans SC', monospace;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-deep);
+      color: var(--white-soft);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      cursor: default;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ═══════════════════════════════════════════
+       BACKGROUND LAYERS — 5 layers of atmosphere
+       ═══════════════════════════════════════════ */
+
+    /* Layer 0: Deep warm radial base */
+    .bg-base {
+      position: fixed; inset: 0; z-index: -3;
+      background: radial-gradient(ellipse at 50% 30%, #181408 0%, #0d0a04 60%, #000000 100%);
+    }
+
+    /* Layer 1: Polka dot pattern — pop art classic in yellow */
+    .bg-polkadot {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      --dot-size: 3px;
+      --dot-spacing: 28px;
+      background-image:
+        radial-gradient(circle at center, rgba(200, 162, 0, 0.18) var(--dot-size), transparent var(--dot-size));
+      background-size: var(--dot-spacing) var(--dot-spacing);
+      animation: polkaDrift 30s linear infinite;
+    }
+
+    /* Layer 2: Larger accent dots — varied yellow tones */
+    .bg-polkadot-large {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      --dot-size: 6px;
+      --dot-spacing: 90px;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.22) var(--dot-size), transparent var(--dot-size)),
+        radial-gradient(circle at 70% 60%, rgba(230, 190, 0, 0.18) var(--dot-size), transparent var(--dot-size)),
+        radial-gradient(circle at 40% 80%, rgba(139, 117, 0, 0.22) var(--dot-size), transparent var(--dot-size));
+      background-size: var(--dot-spacing) var(--dot-spacing), var(--dot-spacing) var(--dot-spacing), var(--dot-spacing) var(--dot-spacing);
+      animation: polkaDriftLarge 45s linear infinite reverse;
+    }
+
+    /* Layer 3: Halftone gradient strips — Ben-Day dots vibe in yellow */
+    .bg-halftone {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(200, 162, 0, 0.04) 3px,
+          rgba(200, 162, 0, 0.04) 6px
+        );
+      mask-image: radial-gradient(ellipse at 50% 50%, transparent 30%, black 80%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 50%, transparent 30%, black 80%);
+    }
+
+    /* Layer 4: Action lines at edges */
+    .bg-action-lines {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        conic-gradient(from 45deg at 5% 95%, transparent 0deg, rgba(200, 162, 0, 0.03) 10deg, transparent 20deg, transparent 360deg),
+        conic-gradient(from -135deg at 95% 5%, transparent 0deg, rgba(255, 215, 0, 0.03) 10deg, transparent 20deg, transparent 360deg);
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════ */
+    @keyframes polkaDrift {
+      0%   { background-position: 0 0; }
+      100% { background-position: var(--dot-spacing) var(--dot-spacing); }
+    }
+    @keyframes polkaDriftLarge {
+      0%   { background-position: 0 0, 0 0, 0 0; }
+      100% { background-position: calc(var(--dot-spacing) * 2) var(--dot-spacing), calc(var(--dot-spacing) * -1) calc(var(--dot-spacing) * 2), var(--dot-spacing) calc(var(--dot-spacing) * -1); }
+    }
+
+    @keyframes panelReveal {
+      0%   { opacity: 0; transform: translateY(30px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes diamondSpin {
+      0%   { transform: rotate(0deg) scale(0); opacity: 0; }
+      60%  { transform: rotate(50deg) scale(1.15); opacity: 1; }
+      100% { transform: rotate(45deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes burstPop {
+      0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+      70%  { transform: scale(1.1) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes slashIn {
+      0%   { width: 0; opacity: 0; }
+      100% { width: 100%; opacity: 1; }
+    }
+
+    @keyframes floatUpDown {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    @keyframes dripDown {
+      0%   { height: 0; opacity: 0; }
+      100% { height: 55px; opacity: 0.7; }
+    }
+
+    @keyframes pulseYellow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230, 190, 0, 0.4); }
+      50%      { box-shadow: 0 0 0 12px rgba(230, 190, 0, 0); }
+    }
+
+    @keyframes filmPopIn {
+      0%   { opacity: 0; transform: scale(0.85) translateY(40px); }
+      60%  { opacity: 1; transform: scale(1.03) translateY(-8px); }
+      80%  { transform: scale(0.98) translateY(4px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes filmPopOut {
+      0%   { opacity: 1; transform: scale(1) translateY(0); }
+      100% { opacity: 0; transform: scale(0.85) translateY(40px); }
+    }
+
+    @keyframes overlayFadeIn {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes borderGlow {
+      0%, 100% { border-color: var(--yellow-primary); box-shadow: 0 0 8px rgba(200, 162, 0, 0.3), inset 0 0 8px rgba(200, 162, 0, 0.05); }
+      50%      { border-color: var(--yellow-neon); box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 16px rgba(255, 215, 0, 0.1); }
+    }
+
+    @keyframes sparkFade {
+      0%   { transform: scale(1); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
+    @keyframes closeSpin {
+      0%   { transform: rotate(45deg); }
+      100% { transform: rotate(405deg); }
+    }
+
+    /* ═══════════════════════════════════════════
+       P5 DECORATIVE DIAMONDS (yellow + gold)
+       ═══════════════════════════════════════════ */
+    .p5-diamond {
+      width: 12px; height: 12px;
+      background: var(--yellow-primary);
+      transform: rotate(45deg);
+      display: inline-block;
+      flex-shrink: 0;
+      animation: diamondSpin 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
+    .p5-diamond.small { width: 8px; height: 8px; }
+    .p5-diamond.gold { background: var(--gold); }
+    .p5-diamond.bright { background: var(--yellow-bright); }
+
+    /* ═══════════════════════════════════════════
+       CORNER DECORATIONS
+       ═══════════════════════════════════════════ */
+    .corner-deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.5;
+    }
+    .corner-deco.tl { top: 20px; left: 20px; }
+    .corner-deco.tr { top: 20px; right: 20px; }
+    .corner-deco.bl { bottom: 20px; left: 20px; }
+    .corner-deco.br { bottom: 20px; right: 20px; }
+
+    .corner-angle {
+      width: 40px; height: 40px;
+      border: 3px solid var(--yellow-dark);
+      position: relative;
+    }
+    .corner-angle.tl-shape {
+      border-right: none; border-bottom: none;
+      animation: panelReveal 0.8s ease 0.8s forwards;
+      opacity: 0;
+    }
+    .corner-angle.br-shape {
+      border-left: none; border-top: none;
+      animation: panelReveal 0.8s ease 1s forwards;
+      opacity: 0;
+    }
+    .corner-angle.tr-shape {
+      border-left: none; border-bottom: none;
+      animation: panelReveal 0.8s ease 0.9s forwards;
+      opacity: 0;
+    }
+    .corner-angle.bl-shape {
+      border-right: none; border-top: none;
+      animation: panelReveal 0.8s ease 1.1s forwards;
+      opacity: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       YELLOW DRIP DECORATION
+       ═══════════════════════════════════════════ */
+    .drip-container {
+      position: fixed;
+      top: 0;
+      right: 60px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .drip {
+      width: 3px;
+      background: linear-gradient(to bottom, var(--yellow-primary), var(--yellow-bright));
+      border-radius: 0 0 3px 3px;
+      margin-bottom: 12px;
+      animation: dripDown 2s ease-out forwards;
+      opacity: 0;
+    }
+    .drip:nth-child(1) { animation-delay: 1.2s; height: 40px; }
+    .drip:nth-child(2) { animation-delay: 1.5s; height: 25px; margin-left: 8px; }
+    .drip:nth-child(3) { animation-delay: 1.8s; height: 50px; margin-left: -4px; }
+
+    /* ═══════════════════════════════════════════
+       MAIN APP LAYOUT
+       ═══════════════════════════════════════════ */
+    .app-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════════════════
+       HEADER — Gallery title
+       ═══════════════════════════════════════════ */
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .gallery-label {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 0.4rem;
+      opacity: 0;
+      animation: panelReveal 0.6s ease 0.1s forwards;
+    }
+    .gallery-label .p5-diamond {
+      animation-delay: 0.3s;
+    }
+
+    .gallery-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7vw, 5rem);
+      font-weight: 400;
+      line-height: 0.9;
+      color: var(--white-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: panelReveal 0.7s ease 0.25s forwards;
+    }
+    .gallery-title .title-accent {
+      color: var(--yellow-bright);
+      position: relative;
+      display: inline-block;
+    }
+    .gallery-title .title-accent::after {
+      content: '✦';
+      position: absolute;
+      top: -0.4em;
+      right: -0.3em;
+      font-size: 0.3em;
+      color: var(--gold-bright);
+      animation: floatUpDown 2s ease-in-out infinite;
+    }
+
+    .gallery-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--yellow-primary);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+      opacity: 0;
+      animation: panelReveal 0.6s ease 0.4s forwards;
+    }
+
+    /* Yellow slash divider */
+    .header-slash {
+      width: 0;
+      height: 4px;
+      background: var(--yellow-primary);
+      margin: 1.2rem auto;
+      position: relative;
+      animation: slashIn 1s ease 0.6s forwards;
+    }
+    .header-slash::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 0; right: 0;
+      height: 12px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--yellow-dark) 0px,
+        var(--yellow-dark) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    }
+
+    /* ═══════════════════════════════════════════
+       GALLERY GRID — 2 columns
+       ═══════════════════════════════════════════ */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem 2rem;
+      padding: 0 1rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       FILM STRIP CARD — Comic panel + film border
+       ═══════════════════════════════════════════ */
+    .film-card {
+      /* Outer comic panel */
+      background: var(--bg-card);
+      border: 3px solid var(--black-pure);
+      outline: 1.5px solid var(--yellow-dark);
+      outline-offset: -6px;
+      padding: 1.2rem;
+      position: relative;
+      cursor: pointer;
+      box-shadow:
+        8px 8px 0 rgba(0,0,0,0.9),
+        14px 14px 0 rgba(200, 162, 0, 0.1);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  outline-color 0.35s ease;
+      opacity: 0;
+      transform: translateY(25px);
+      animation: panelReveal 0.5s ease forwards;
+      user-select: none;
+    }
+
+    /* Inner halftone strip at top */
+    .film-card::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 8px; right: 8px;
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--yellow-primary) 0px,
+        var(--yellow-primary) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+      opacity: 0.4;
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .film-card:hover {
+      transform: translate(-4px, -4px);
+      box-shadow:
+        12px 12px 0 rgba(0,0,0,0.9),
+        20px 20px 0 rgba(200, 162, 0, 0.18);
+      outline-color: var(--yellow-bright);
+    }
+    .film-card:hover::before {
+      opacity: 0.7;
+    }
+    .film-card:active {
+      transform: translate(-1px, -1px);
+      box-shadow:
+        4px 4px 0 rgba(0,0,0,0.85),
+        8px 8px 0 rgba(200, 162, 0, 0.1);
+    }
+
+    /* ═══════════════════════════════════════════
+       FILM STRIP INNER — The actual film
+       ═══════════════════════════════════════════ */
+    .film-strip {
+      position: relative;
+      background: #0f0c05;
+      border: 2px solid #080604;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Film sprocket edge — top & bottom */
+    .film-edge {
+      position: relative;
+      width: 100%;
+      height: 18px;
+      background: #080604;
+      flex-shrink: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* Sprocket holes — repeating rectangular perforations */
+    .sprocket-holes {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 4px,
+          rgba(200, 162, 0, 0.35) 4px,
+          rgba(200, 162, 0, 0.35) 7px,
+          transparent 7px,
+          transparent 11px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 14px,
+          rgba(255, 215, 0, 0.25) 14px,
+          rgba(255, 215, 0, 0.25) 17px,
+          transparent 17px,
+          transparent 22px
+        );
+      background-position: 0 3px, 0 11px;
+      background-size: 22px 6px, 22px 6px;
+      background-repeat: repeat-x, repeat-x;
+    }
+
+    /* Film image area */
+    .film-image-area {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3 / 2;
+      background: #050302;
+      flex-shrink: 0;
+    }
+    .film-image-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.4s ease, transform 0.5s ease;
+    }
+    .film-card:hover .film-image-area img {
+      filter: brightness(1.1) contrast(1.05);
+      transform: scale(1.03);
+    }
+
+    /* Subtle film grain overlay */
+    .film-image-area::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0.6;
+    }
+
+    /* Film frame number — tiny details */
+    .film-frame-num {
+      position: absolute;
+      bottom: 4px;
+      right: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      color: rgba(255, 215, 0, 0.35);
+      letter-spacing: 0.08em;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Film caption below strip */
+    .film-caption {
+      margin-top: 0.9rem;
+      text-align: center;
+    }
+    .film-caption .fc-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      color: var(--yellow-bright);
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+    .film-card:hover .fc-title {
+      color: var(--gold-bright);
+    }
+    .film-caption .fc-sub {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--yellow-dark);
+      letter-spacing: 0.06em;
+      margin-top: 0.15rem;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+    .film-card:hover .fc-sub {
+      opacity: 0.9;
+    }
+
+    /* Corner diamond on film card */
+    .film-card-corner {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 10px; height: 10px;
+      background: var(--yellow-dark);
+      transform: rotate(45deg);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 3;
+    }
+    .film-card:hover .film-card-corner {
+      opacity: 0.6;
+      background: var(--yellow-bright);
+    }
+
+    /* Staggered entrance delays */
+    .film-card:nth-child(1) { animation-delay: 0.45s; }
+    .film-card:nth-child(2) { animation-delay: 0.52s; }
+    .film-card:nth-child(3) { animation-delay: 0.59s; }
+    .film-card:nth-child(4) { animation-delay: 0.66s; }
+    .film-card:nth-child(5) { animation-delay: 0.73s; }
+    .film-card:nth-child(6) { animation-delay: 0.80s; }
+    .film-card:nth-child(7) { animation-delay: 0.87s; }
+    .film-card:nth-child(8) { animation-delay: 0.94s; }
+
+    /* ═══════════════════════════════════════════
+       LIGHTBOX OVERLAY
+       ═══════════════════════════════════════════ */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      cursor: default;
+    }
+    .lightbox-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Subtle polka dots on overlay */
+    .lightbox-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at center, rgba(200, 162, 0, 0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* 3D stage — provides perspective */
+    .lightbox-stage {
+      perspective: 1200px;
+      perspective-origin: center center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 2rem;
+    }
+
+    /* The enlarged film card — 3D transformed */
+    .lightbox-film-card {
+      max-width: 85vw;
+      max-height: 85vh;
+      width: 700px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out;
+      will-change: transform;
+      cursor: default;
+    }
+
+    /* Outer comic panel on the lightbox */
+    .lightbox-film-card .film-outer {
+      background: var(--bg-card);
+      border: 3px solid var(--black-pure);
+      outline: 2px solid var(--yellow-primary);
+      outline-offset: -7px;
+      padding: 1.5rem;
+      position: relative;
+      box-shadow:
+        12px 12px 0 rgba(0,0,0,0.9),
+        20px 20px 0 rgba(200, 162, 0, 0.12);
+      transition: box-shadow 0.15s ease-out;
+    }
+
+    /* Halftone strip inside lightbox panel */
+    .lightbox-film-card .film-outer::before {
+      content: '';
+      position: absolute;
+      top: 10px; left: 10px; right: 10px;
+      height: 5px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--yellow-primary) 0px,
+        var(--yellow-primary) 5px,
+        transparent 5px,
+        transparent 10px
+      );
+      opacity: 0.5;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Lightbox film strip inner */
+    .lightbox-film-strip {
+      position: relative;
+      background: #0f0c05;
+      border: 2px solid #080604;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lightbox-film-strip .film-edge {
+      position: relative;
+      width: 100%;
+      height: 24px;
+      background: #080604;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .lightbox-film-strip .sprocket-holes {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 5px,
+          rgba(200, 162, 0, 0.4) 5px,
+          rgba(200, 162, 0, 0.4) 9px,
+          transparent 9px,
+          transparent 14px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 17px,
+          rgba(255, 215, 0, 0.3) 17px,
+          rgba(255, 215, 0, 0.3) 21px,
+          transparent 21px,
+          transparent 28px
+        );
+      background-position: 0 4px, 0 14px;
+      background-size: 28px 8px, 28px 8px;
+      background-repeat: repeat-x, repeat-x;
+    }
+
+    .lightbox-film-strip .film-image-area {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3 / 2;
+      background: #050302;
+      flex-shrink: 0;
+    }
+    .lightbox-film-strip .film-image-area img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #050302;
+    }
+
+    /* Glossy glare overlay on enlarged image */
+    .film-glare {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      mix-blend-mode: soft-light;
+    }
+    .film-glare.active {
+      opacity: 1;
+    }
+
+    /* Lightbox close button — diamond style */
+    .lightbox-close {
+      position: fixed;
+      top: 28px;
+      right: 28px;
+      z-index: 110;
+      width: 44px; height: 44px;
+      background: var(--bg-card);
+      border: 2px solid var(--yellow-dark);
+      color: var(--yellow-primary);
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(45deg);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .lightbox-close span {
+      transform: rotate(-45deg);
+      display: block;
+      line-height: 1;
+    }
+    .lightbox-close.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .lightbox-close:hover {
+      border-color: var(--yellow-bright);
+      color: var(--yellow-neon);
+      box-shadow: 0 0 18px rgba(230, 190, 0, 0.4);
+      transform: rotate(405deg);
+      transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Lightbox caption */
+    .lightbox-caption {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 110;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease 0.15s;
+    }
+    .lightbox-caption.active {
+      opacity: 1;
+      pointer-events: none;
+    }
+    .lightbox-caption .lc-title {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+    }
+    .lightbox-caption .lc-sub {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--yellow-primary);
+      letter-spacing: 0.08em;
+      margin-top: 0.2rem;
+      opacity: 0.7;
+    }
+    .lightbox-caption .lc-diamond {
+      width: 10px; height: 10px;
+      background: var(--yellow-primary);
+      transform: rotate(45deg);
+      display: inline-block;
+      margin: 0 0.5rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════ */
+    .gallery-footer {
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 2px dashed rgba(200, 162, 0, 0.15);
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--yellow-dark);
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: panelReveal 0.5s ease 1.05s forwards;
+    }
+    .gallery-footer span {
+      font-family: var(--font-display);
+      letter-spacing: 0.08em;
+    }
+
+    /* ═══════════════════════════════════════════
+       STATUS INDICATOR
+       ═══════════════════════════════════════════ */
+    .api-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--yellow-dark);
+      opacity: 0.45;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .api-status .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--yellow-dark);
+      position: relative;
+    }
+    .api-status .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1px solid var(--yellow-dark);
+      opacity: 0.5;
+      animation: pulseYellow 3s ease-in-out infinite;
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLLBAR — yellow themed
+       ═══════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--yellow-deep);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--yellow-dark); }
+
+    /* ═══════════════════════════════════════════
+       SELECTION
+       ═══════════════════════════════════════════ */
+    ::selection {
+      background: var(--yellow-primary);
+      color: var(--black-pure);
+    }
+
+    /* ═══════════════════════════════════════════
+       BODY NO-SCROLL WHEN LIGHTBOX OPEN
+       ═══════════════════════════════════════════ */
+    body.lightbox-open {
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 0.5rem;
+      }
+      .film-card {
+        padding: 0.9rem;
+      }
+      .film-edge {
+        height: 14px;
+      }
+      .film-card::before {
+        top: 5px; left: 5px; right: 5px;
+        height: 3px;
+      }
+      .corner-deco { display: none; }
+      .drip-container { right: 15px; }
+      .app-container {
+        padding: 1rem 0.8rem 3rem;
+      }
+
+      .lightbox-film-card {
+        width: 95vw;
+        max-width: 95vw;
+      }
+      .lightbox-film-card .film-outer {
+        padding: 0.8rem;
+      }
+      .lightbox-film-strip .film-edge {
+        height: 16px;
+      }
+      .lightbox-close {
+        top: 16px;
+        right: 16px;
+        width: 36px; height: 36px;
+      }
+      .lightbox-caption .lc-title {
+        font-size: 1.3rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .gallery-title {
+        font-size: 2.2rem;
+      }
+      .gallery-label {
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+      }
+      .gallery-subtitle {
+        font-size: 0.85rem;
+      }
+      .film-caption .fc-title {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ BACKGROUND LAYERS ═══════════════ -->
+  <div class="bg-base"></div>
+  <div class="bg-polkadot"></div>
+  <div class="bg-polkadot-large"></div>
+  <div class="bg-halftone"></div>
+  <div class="bg-action-lines"></div>
+
+  <!-- ═══════════════ CORNER DECORATIONS ═══════════════ -->
+  <div class="corner-deco tl">
+    <div class="corner-angle tl-shape"></div>
+  </div>
+  <div class="corner-deco tr">
+    <div class="corner-angle tr-shape"></div>
+  </div>
+  <div class="corner-deco bl">
+    <div class="corner-angle bl-shape"></div>
+  </div>
+  <div class="corner-deco br">
+    <div class="corner-angle br-shape"></div>
+  </div>
+
+  <!-- ═══════════════ YELLOW DRIP DECORATION ═══════════════ -->
+  <div class="drip-container">
+    <div class="drip"></div>
+    <div class="drip"></div>
+    <div class="drip"></div>
+  </div>
+
+  <!-- ═══════════════ MAIN CONTAINER ═══════════════ -->
+  <div class="app-container">
+
+    <!-- ── GALLERY HEADER ── -->
+    <header class="gallery-header">
+      <div class="gallery-label">
+        <span class="p5-diamond gold" style="animation-delay: 0.3s;"></span>
+        REBEL GALLERY
+        <span class="p5-diamond gold" style="animation-delay: 0.3s;"></span>
+      </div>
+      <h1 class="gallery-title">
+        <span class="title-accent">反</span>逆の画廊
+      </h1>
+      <p class="gallery-subtitle">· Take Your Vision ·</p>
+      <div class="header-slash"></div>
+    </header>
+
+    <!-- ── GALLERY GRID ── -->
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- JS populates film cards here -->
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="gallery-footer">
+      <span>◆ FRAME SELECT ◆</span>
+      <span id="frameCount"></span>
+    </footer>
+
+  </div>
+
+  <!-- ═══════════════ LIGHTBOX OVERLAY ═══════════════ -->
+  <div class="lightbox-overlay" id="lightboxOverlay">
+    <div class="lightbox-stage" id="lightboxStage">
+      <div class="lightbox-film-card" id="lightboxFilmCard">
+        <div class="film-outer">
+          <div class="lightbox-film-strip">
+            <div class="film-edge">
+              <div class="sprocket-holes"></div>
+            </div>
+            <div class="film-image-area">
+              <img src="" alt="" id="lightboxImg">
+              <div class="film-glare" id="filmGlare"></div>
+            </div>
+            <div class="film-edge">
+              <div class="sprocket-holes"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lightbox-caption" id="lightboxCaption">
+      <span class="lc-diamond"></span>
+      <span class="lc-title" id="lcTitle"></span>
+      <span class="lc-diamond"></span>
+      <div class="lc-sub" id="lcSub"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CLOSE BUTTON ═══════════════ -->
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close gallery">
+    <span>✕</span>
+  </button>
+
+  <!-- ═══════════════ STATUS ═══════════════ -->
+  <div class="api-status" title="Status">
+    <span class="status-dot"></span>
+    <span>GALLERY · STANDBY</span>
+  </div>
+
+  <!-- ═══════════════ SCRIPTS ═══════════════ -->
+  <script>
+  /* ═══════════════════════════════════════════════════════════
+     IMAGE DATA — Replace with your own images
+     ═══════════════════════════════════════════════════════════ */
+  const GALLERY_IMAGES = [
+    {
+      id: 'frame-01',
+      src: 'https://picsum.photos/seed/rebel01/800/533',
+      title: '覚醒の刻',
+      sub: 'FRAME 001 · AWAKENING',
+      caption: 'Awakening',
+    },
+    {
+      id: 'frame-02',
+      src: 'https://picsum.photos/seed/rebel02/800/533',
+      title: '仮面の裏',
+      sub: 'FRAME 002 · BEHIND THE MASK',
+      caption: 'Behind the Mask',
+    },
+    {
+      id: 'frame-03',
+      src: 'https://picsum.photos/seed/rebel03/800/533',
+      title: '心の影',
+      sub: 'FRAME 003 · SHADOW HEART',
+      caption: 'Shadow Heart',
+    },
+    {
+      id: 'frame-04',
+      src: 'https://picsum.photos/seed/rebel04/800/533',
+      title: '反逆の炎',
+      sub: 'FRAME 004 · REBEL FLAME',
+      caption: 'Rebel Flame',
+    },
+    {
+      id: 'frame-05',
+      src: 'https://picsum.photos/seed/rebel05/800/533',
+      title: '蒼き契約',
+      sub: 'FRAME 005 · VELVET PACT',
+      caption: 'Velvet Pact',
+    },
+    {
+      id: 'frame-06',
+      src: 'https://picsum.photos/seed/rebel06/800/533',
+      title: '異世界航路',
+      sub: 'FRAME 006 · METAVERSE',
+      caption: 'Metaverse',
+    },
+    {
+      id: 'frame-07',
+      src: 'https://picsum.photos/seed/rebel07/800/533',
+      title: '予告状',
+      sub: 'FRAME 007 · CALLING CARD',
+      caption: 'Calling Card',
+    },
+    {
+      id: 'frame-08',
+      src: 'https://picsum.photos/seed/rebel08/800/533',
+      title: '自由の翼',
+      sub: 'FRAME 008 · WINGS OF FREEDOM',
+      caption: 'Wings of Freedom',
+    },
+  ];
+
+  /* ═══════════════════════════════════════════════════════════
+     APPLICATION STATE
+     ═══════════════════════════════════════════════════════════ */
+  const state = {
+    images: GALLERY_IMAGES,
+    activeImageId: null,
+    isLightboxOpen: false,
+    mouseX: 0.5,
+    mouseY: 0.5,
+    isMouseOnCard: false,
+    rafId: null,
+    entranceComplete: false,
+    scrollTicking: false,
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     DOM REFS
+     ═══════════════════════════════════════════════════════════ */
+  const dom = {
+    galleryGrid: document.getElementById('galleryGrid'),
+    frameCount: document.getElementById('frameCount'),
+    lightboxOverlay: document.getElementById('lightboxOverlay'),
+    lightboxStage: document.getElementById('lightboxStage'),
+    lightboxFilmCard: document.getElementById('lightboxFilmCard'),
+    lightboxImg: document.getElementById('lightboxImg'),
+    filmGlare: document.getElementById('filmGlare'),
+    lightboxClose: document.getElementById('lightboxClose'),
+    lightboxCaption: document.getElementById('lightboxCaption'),
+    lcTitle: document.getElementById('lcTitle'),
+    lcSub: document.getElementById('lcSub'),
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     RENDER GALLERY GRID
+     ═══════════════════════════════════════════════════════════ */
+  function renderGallery() {
+    dom.galleryGrid.innerHTML = state.images.map((img, i) => `
+      <div class="film-card" data-id="${img.id}" data-index="${i}"
+           role="button" tabindex="0"
+           aria-label="View: ${img.title}">
+        <div class="film-strip">
+          <div class="film-edge">
+            <div class="sprocket-holes"></div>
+          </div>
+          <div class="film-image-area">
+            <img src="${img.src}" alt="${img.title}" loading="${i < 4 ? 'eager' : 'lazy'}">
+            <span class="film-frame-num">${String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <div class="film-edge">
+            <div class="sprocket-holes"></div>
+          </div>
+        </div>
+        <div class="film-caption">
+          <div class="fc-title">${img.title}</div>
+          <div class="fc-sub">${img.sub}</div>
+        </div>
+        <div class="film-card-corner"></div>
+      </div>
+    `).join('');
+
+    dom.frameCount.textContent = `${state.images.length} FRAMES AVAILABLE`;
+
+    // Attach click handlers
+    dom.galleryGrid.querySelectorAll('.film-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.getAttribute('data-id');
+        openLightbox(id);
+      });
+
+      // Keyboard accessibility
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const id = card.getAttribute('data-id');
+          openLightbox(id);
+        }
+      });
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     OPEN LIGHTBOX
+     ═══════════════════════════════════════════════════════════ */
+  function openLightbox(id) {
+    const image = state.images.find(img => img.id === id);
+    if (!image) return;
+
+    state.activeImageId = id;
+    state.isLightboxOpen = true;
+
+    // Set image
+    dom.lightboxImg.src = image.src;
+    dom.lightboxImg.alt = image.title;
+    dom.lcTitle.textContent = image.title;
+    dom.lcSub.textContent = image.caption;
+
+    // Show overlay & close button
+    dom.lightboxOverlay.classList.add('active');
+    dom.lightboxClose.classList.add('active');
+    dom.lightboxCaption.classList.add('active');
+    document.body.classList.add('lightbox-open');
+
+    // Reset transform & start mouse tracking
+    dom.lightboxFilmCard.style.transform = '';
+    dom.filmGlare.classList.remove('active');
+    dom.filmGlare.style.background = '';
+
+    // Small delay to let CSS transition start, then enable glare
+    setTimeout(() => {
+      dom.filmGlare.classList.add('active');
+    }, 200);
+
+    // Start mouse tracking loop
+    if (!state.rafId) {
+      state.rafId = requestAnimationFrame(updateTilt);
+    }
+
+    // Store original card position for scale-from animation
+    const sourceCard = document.querySelector(`.film-card[data-id="${id}"]`);
+    if (sourceCard) {
+      const cardRect = sourceCard.getBoundingClientRect();
+      const stageRect = dom.lightboxStage.getBoundingClientRect();
+      const targetCenterX = stageRect.left + stageRect.width / 2;
+      const targetCenterY = stageRect.top + stageRect.height / 2;
+      const sourceCenterX = cardRect.left + cardRect.width / 2;
+      const sourceCenterY = cardRect.top + cardRect.height / 2;
+
+      // Start from thumbnail position and pop to center
+      dom.lightboxFilmCard.style.transition = 'none';
+      dom.lightboxFilmCard.style.transform =
+        `translate(${sourceCenterX - targetCenterX}px, ${sourceCenterY - targetCenterY}px) scale(0.4)`;
+      dom.lightboxFilmCard.style.opacity = '0.5';
+
+      // Force reflow
+      void dom.lightboxFilmCard.offsetWidth;
+
+      // Animate to center
+      dom.lightboxFilmCard.style.transition =
+        'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease';
+      dom.lightboxFilmCard.style.transform = '';
+      dom.lightboxFilmCard.style.opacity = '1';
+
+      // After pop animation, switch to mouse-driven transforms
+      setTimeout(() => {
+        dom.lightboxFilmCard.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease';
+      }, 520);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CLOSE LIGHTBOX
+     ═══════════════════════════════════════════════════════════ */
+  function closeLightbox() {
+    if (!state.isLightboxOpen) return;
+
+    const activeId = state.activeImageId;
+    const sourceCard = activeId
+      ? document.querySelector(`.film-card[data-id="${activeId}"]`)
+      : null;
+
+    if (sourceCard) {
+      const cardRect = sourceCard.getBoundingClientRect();
+      const stageRect = dom.lightboxStage.getBoundingClientRect();
+      const targetCenterX = stageRect.left + stageRect.width / 2;
+      const targetCenterY = stageRect.top + stageRect.height / 2;
+      const sourceCenterX = cardRect.left + cardRect.width / 2;
+      const sourceCenterY = cardRect.top + cardRect.height / 2;
+
+      // Animate back to thumbnail position
+      dom.lightboxFilmCard.style.transition =
+        'transform 0.45s cubic-bezier(0.34, 1.0, 0.64, 1), opacity 0.35s ease';
+      dom.lightboxFilmCard.style.transform =
+        `translate(${sourceCenterX - targetCenterX}px, ${sourceCenterY - targetCenterY}px) scale(0.4)`;
+      dom.lightboxFilmCard.style.opacity = '0.4';
+    } else {
+      dom.lightboxFilmCard.style.transition =
+        'transform 0.35s ease, opacity 0.3s ease';
+      dom.lightboxFilmCard.style.transform = 'scale(0.85)';
+      dom.lightboxFilmCard.style.opacity = '0';
+    }
+
+    dom.filmGlare.classList.remove('active');
+    dom.lightboxOverlay.classList.remove('active');
+    dom.lightboxClose.classList.remove('active');
+    dom.lightboxCaption.classList.remove('active');
+    document.body.classList.remove('lightbox-open');
+
+    state.isLightboxOpen = false;
+    state.activeImageId = null;
+    state.isMouseOnCard = false;
+
+    // Stop mouse tracking
+    if (state.rafId) {
+      cancelAnimationFrame(state.rafId);
+      state.rafId = null;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     3D TILT — Mouse-driven parallax
+     ═══════════════════════════════════════════════════════════ */
+  function updateTilt() {
+    state.rafId = requestAnimationFrame(updateTilt);
+    if (!state.isLightboxOpen) return;
+
+    const card = dom.lightboxFilmCard;
+    const stage = dom.lightboxStage;
+    const stageRect = stage.getBoundingClientRect();
+
+    // Use actual mouse position within the stage
+    const relX = state.isMouseOnCard
+      ? (state.mouseX - stageRect.left) / stageRect.width
+      : 0.5;
+    const relY = state.isMouseOnCard
+      ? (state.mouseY - stageRect.top) / stageRect.height
+      : 0.5;
+
+    // Clamp
+    const cx = Math.max(0, Math.min(1, relX));
+    const cy = Math.max(0, Math.min(1, relY));
+
+    // Map to rotation: X offset → rotateY, Y offset → rotateX (inverted)
+    const maxRotateY = 22;  // degrees
+    const maxRotateX = 16;
+
+    const rotateY = (cx - 0.5) * maxRotateY;
+    const rotateX = ((cy - 0.5) * -1) * maxRotateX;
+
+    // Dynamic shadow
+    const shadowX = (cx - 0.5) * 35;
+    const shadowY = (cy - 0.5) * 25;
+    const shadowBlur = 40 + Math.abs(cx - 0.5) * 30;
+    const shadowAlpha = 0.6 + Math.abs(cx - 0.5) * 0.3;
+
+    // Apply transform
+    card.style.transform =
+      `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+    // Dynamic shadow on the outer panel
+    const outer = card.querySelector('.film-outer');
+    if (outer) {
+      outer.style.boxShadow =
+        `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0,0,0,${shadowAlpha}), ` +
+        `${shadowX + 8}px ${shadowY + 8}px 0 rgba(200, 162, 0, ${0.08 + Math.abs(cx - 0.5) * 0.1})`;
+    }
+
+    // Glare — simulates light catching glossy film surface
+    const glareEl = dom.filmGlare;
+    if (glareEl && state.isMouseOnCard) {
+      const glareX = cx * 100;
+      const glareY = cy * 100;
+      glareEl.style.background = `
+        radial-gradient(
+          ellipse at ${glareX}% ${glareY}%,
+          rgba(255, 255, 255, 0.18) 0%,
+          rgba(255, 240, 200, 0.08) 25%,
+          transparent 55%
+        )
+      `;
+    } else if (glareEl) {
+      // Default center glare when mouse is off
+      glareEl.style.background = `
+        radial-gradient(
+          ellipse at 50% 50%,
+          rgba(255, 255, 255, 0.06) 0%,
+          transparent 50%
+        )
+      `;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     MOUSE TRACKING
+     ═══════════════════════════════════════════════════════════ */
+  function onMouseMove(e) {
+    state.mouseX = e.clientX;
+    state.mouseY = e.clientY;
+
+    if (state.isLightboxOpen) {
+      const stageRect = dom.lightboxStage.getBoundingClientRect();
+      state.isMouseOnCard =
+        e.clientX >= stageRect.left &&
+        e.clientX <= stageRect.right &&
+        e.clientY >= stageRect.top &&
+        e.clientY <= stageRect.bottom;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CLICK OUTSIDE TO CLOSE
+     ═══════════════════════════════════════════════════════════ */
+  function onOverlayClick(e) {
+    if (e.target === dom.lightboxOverlay || e.target === dom.lightboxStage) {
+      closeLightbox();
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     KEYBOARD SHORTCUTS
+     ═══════════════════════════════════════════════════════════ */
+  function onKeyDown(e) {
+    if (!state.isLightboxOpen) return;
+
+    if (e.key === 'Escape') {
+      closeLightbox();
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateGallery(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateGallery(-1);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     NAVIGATE BETWEEN IMAGES
+     ═══════════════════════════════════════════════════════════ */
+  function navigateGallery(direction) {
+    if (!state.activeImageId) return;
+    const currentIdx = state.images.findIndex(img => img.id === state.activeImageId);
+    if (currentIdx === -1) return;
+    const newIdx = (currentIdx + direction + state.images.length) % state.images.length;
+    const newImage = state.images[newIdx];
+    openLightbox(newImage.id);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     SCROLL-DRIVEN FADE — subtle parallax on grid cards
+     ═══════════════════════════════════════════════════════════ */
+  function updateScrollEffects() {
+    if (state.isLightboxOpen || !state.entranceComplete) return;
+
+    const vh = window.innerHeight;
+    const cards = document.querySelectorAll('.film-card');
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const center = (rect.top + rect.bottom) / 2;
+      const ratio = center / vh;
+
+      let opacity;
+      if (ratio < 0.15) {
+        opacity = 0;
+      } else if (ratio < 0.3) {
+        opacity = (ratio - 0.15) / 0.15;
+      } else if (ratio < 0.7) {
+        opacity = 1;
+      } else if (ratio < 0.85) {
+        opacity = 1 - (ratio - 0.7) / 0.15;
+      } else {
+        opacity = 0;
+      }
+      opacity = Math.max(0, Math.min(1, opacity));
+
+      const translateY = (1 - opacity) * 40;
+      const scale = 0.92 + opacity * 0.08;
+
+      card.style.opacity = opacity;
+      card.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    });
+    state.scrollTicking = false;
+  }
+
+  function onScroll() {
+    if (!state.scrollTicking) {
+      requestAnimationFrame(updateScrollEffects);
+      state.scrollTicking = true;
+    }
+  }
+
+  function initScrollAnimations() {
+    setTimeout(() => {
+      state.entranceComplete = true;
+      document.querySelectorAll('.film-card').forEach(card => {
+        card.style.animation = 'none';
+        card.style.opacity = '1';
+        card.style.transform = 'none';
+      });
+      if (!state.isLightboxOpen) {
+        updateScrollEffects();
+      }
+    }, 2200);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CLICK SPARKLE EFFECT — yellow version
+     ═══════════════════════════════════════════════════════════ */
+  function initSparkleEffect() {
+    document.addEventListener('click', function(e) {
+      // Don't spawn sparkles on lightbox overlay clicks (they close it)
+      if (e.target === dom.lightboxOverlay || e.target === dom.lightboxStage) return;
+
+      const spark = document.createElement('div');
+      const size = Math.random() * 8 + 4;
+      const hue = Math.random() > 0.5 ? '230, 190, 0' : '255, 215, 0';
+      spark.style.cssText = `
+        position: fixed;
+        left: ${e.clientX - size/2}px;
+        top: ${e.clientY - size/2}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle, rgb(${hue}), rgba(${hue}, 0.4));
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 999;
+        animation: sparkFade 0.6s ease-out forwards;
+      `;
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 600);
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     INITIALIZATION
+     ═══════════════════════════════════════════════════════════ */
+  function init() {
+    renderGallery();
+    initScrollAnimations();
+    initSparkleEffect();
+
+    // Event listeners
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    dom.lightboxOverlay.addEventListener('click', onOverlayClick);
+    dom.lightboxClose.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', onKeyDown);
+
+    // Touch support — tap overlay to close
+    dom.lightboxStage.addEventListener('touchmove', (e) => {
+      if (state.isLightboxOpen) {
+        state.mouseX = e.touches[0].clientX;
+        state.mouseY = e.touches[0].clientY;
+        state.isMouseOnCard = true;
+      }
+    }, { passive: true });
+
+    console.log(
+      `%c◆ REBEL GALLERY ◆%c\n${state.images.length} frames loaded · Click any film strip to view in 3D`,
+      'color: #E6BE00; font-family: "Bebas Neue", sans-serif; font-size: 1.2em;',
+      ''
+    );
+  }
+
+  // Boot
+  init();
+  </script>
+
+</body>
+</html>

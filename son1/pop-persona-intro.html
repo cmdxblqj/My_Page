@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calling Card · 心の怪盗</title>
+
+  <!-- Google Fonts: Bebas Neue for Persona5-style headlines + DM Sans for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fredoka:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════
+       CSS CUSTOM PROPERTIES
+       ═══════════════════════════════════════════ */
+    :root {
+      --bg-deep: #120808;
+      --bg-card: #0d0404;
+      --red-bright: #e60012;
+      --red-neon: #ff1a2e;
+      --red-blood: #cf0a2c;
+      --red-crimson: #a8102b;
+      --maroon: #8b1a2b;
+      --maroon-deep: #5c101c;
+      --pink-dark: #c71550;
+      --pink-muted: #d46a8e;
+      --pink-soft: #f0c0d0;
+      --gold: #ffc107;
+      --gold-bright: #ffd54f;
+      --white-soft: #f5eaea;
+      --white-warm: #fff0f0;
+      --black-pure: #000000;
+      --black-soft: #1a0a0a;
+
+      --font-display: 'Bebas Neue', 'Noto Sans SC', sans-serif;
+      --font-body: 'DM Sans', 'Noto Sans SC', sans-serif;
+      --font-accent: 'Fredoka', cursive;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-deep);
+      color: var(--white-soft);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ═══════════════════════════════════════════
+       BACKGROUND LAYERS
+       ═══════════════════════════════════════════ */
+
+    /* Layer 0: Deep red-black base */
+    .bg-base {
+      position: fixed; inset: 0; z-index: -3;
+      background: radial-gradient(ellipse at 50% 30%, #1a0808 0%, #0a0303 60%, #000000 100%);
+    }
+
+    /* Layer 1: Polka dot pattern — pop art classic */
+    .bg-polkadot {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      --dot-size: 3px;
+      --dot-spacing: 28px;
+      background-image:
+        radial-gradient(circle at center, rgba(230, 0, 18, 0.25) var(--dot-size), transparent var(--dot-size));
+      background-size: var(--dot-spacing) var(--dot-spacing);
+      animation: polkaDrift 30s linear infinite;
+    }
+
+    /* Layer: Larger accent dots overlay */
+    .bg-polkadot-large {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      --dot-size: 6px;
+      --dot-spacing: 90px;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(199, 21, 80, 0.3) var(--dot-size), transparent var(--dot-size)),
+        radial-gradient(circle at 70% 60%, rgba(207, 10, 44, 0.25) var(--dot-size), transparent var(--dot-size)),
+        radial-gradient(circle at 40% 80%, rgba(139, 26, 43, 0.3) var(--dot-size), transparent var(--dot-size));
+      background-size: var(--dot-spacing) var(--dot-spacing), var(--dot-spacing) var(--dot-spacing), var(--dot-spacing) var(--dot-spacing);
+      animation: polkaDriftLarge 45s linear infinite reverse;
+    }
+
+    /* Layer 2: Halftone gradient strips — pop art Ben-Day dots vibe */
+    .bg-halftone {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(199, 21, 80, 0.06) 3px,
+          rgba(199, 21, 80, 0.06) 6px
+        );
+      mask-image: radial-gradient(ellipse at 50% 50%, transparent 30%, black 80%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 50%, transparent 30%, black 80%);
+    }
+
+    /* Layer 3: Comic action lines at edges */
+    .bg-action-lines {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        conic-gradient(from 45deg at 5% 95%, transparent 0deg, rgba(207, 10, 44, 0.04) 10deg, transparent 20deg, transparent 360deg),
+        conic-gradient(from -135deg at 95% 5%, transparent 0deg, rgba(230, 0, 18, 0.04) 10deg, transparent 20deg, transparent 360deg);
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════ */
+    @keyframes polkaDrift {
+      0% { background-position: 0 0; }
+      100% { background-position: var(--dot-spacing) var(--dot-spacing); }
+    }
+    @keyframes polkaDriftLarge {
+      0% { background-position: 0 0, 0 0, 0 0; }
+      100% { background-position: calc(var(--dot-spacing) * 2) var(--dot-spacing), calc(var(--dot-spacing) * -1) calc(var(--dot-spacing) * 2), var(--dot-spacing) calc(var(--dot-spacing) * -1); }
+    }
+
+    /* Staggered section reveal */
+    @keyframes panelReveal {
+      0%   { opacity: 0; transform: translateY(30px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes diamondSpin {
+      0%   { transform: rotate(0deg) scale(0); opacity: 0; }
+      60%  { transform: rotate(50deg) scale(1.15); opacity: 1; }
+      100% { transform: rotate(45deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes burstPop {
+      0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+      70%  { transform: scale(1.1) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes slashIn {
+      0%   { width: 0; opacity: 0; }
+      100% { width: 100%; opacity: 1; }
+    }
+
+    @keyframes textGlitch {
+      0%, 100% { text-shadow: 3px 3px 0 var(--red-bright), -3px -3px 0 var(--pink-dark); }
+      25%       { text-shadow: -3px 3px 0 var(--red-neon), 3px -3px 0 var(--maroon); }
+      50%       { text-shadow: 3px -3px 0 var(--pink-dark), -3px 3px 0 var(--red-crimson); }
+      75%       { text-shadow: -3px -3px 0 var(--red-blood), 3px 3px 0 var(--pink-muted); }
+    }
+
+    @keyframes floatUpDown {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    @keyframes confidantStar {
+      0%   { transform: rotate(0deg) scale(0.8); opacity: 0.3; }
+      50%  { transform: rotate(180deg) scale(1.1); opacity: 1; }
+      100% { transform: rotate(360deg) scale(0.8); opacity: 0.3; }
+    }
+
+    @keyframes bloodDrip {
+      0%   { height: 0; opacity: 0; }
+      100% { height: 60px; opacity: 0.8; }
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230, 0, 18, 0.4); }
+      50%      { box-shadow: 0 0 0 12px rgba(230, 0, 18, 0); }
+    }
+
+    /* ═══════════════════════════════════════════
+       LAYOUT — centered content (reference: 3-col grid)
+       ═══════════════════════════════════════════ */
+    .page-grid {
+      display: grid;
+      grid-template-columns: 1fr min(65ch, 90%) 1fr;
+      min-height: 100vh;
+    }
+    .content-col {
+      grid-column: 2 / 3;
+      padding: 1rem;
+      position: relative;
+    }
+    .content-wrapper {
+      margin-top: 4rem;
+      margin-bottom: 4rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       PERSONA5-STYLE DECORATIVE DIAMONDS
+       ═══════════════════════════════════════════ */
+    .p5-diamond {
+      width: 12px; height: 12px;
+      background: var(--red-bright);
+      transform: rotate(45deg);
+      display: inline-block;
+      flex-shrink: 0;
+      animation: diamondSpin 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
+    .p5-diamond.small { width: 8px; height: 8px; }
+    .p5-diamond.gold { background: var(--gold); }
+
+    /* ═══════════════════════════════════════════
+       COMIC PANEL (Pop Art card)
+       ═══════════════════════════════════════════ */
+    .comic-panel {
+      background: var(--bg-card);
+      border: 3px solid var(--black-pure);
+      outline: 1.5px solid var(--red-crimson);
+      outline-offset: -6px;
+      padding: 2rem 1.8rem;
+      position: relative;
+      box-shadow:
+        8px 8px 0 rgba(0,0,0,0.9),
+        14px 14px 0 rgba(199, 21, 80, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .comic-panel:hover {
+      transform: translate(-2px, -2px);
+      box-shadow:
+        10px 10px 0 rgba(0,0,0,0.9),
+        18px 18px 0 rgba(199, 21, 80, 0.25);
+    }
+
+    /* Comic panel inner border accent — halftone strip */
+    .comic-panel::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 8px; right: 8px;
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--red-bright) 0px,
+        var(--red-bright) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+      opacity: 0.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION ANIMATION — driven by JS scroll loop
+       (opacity & transform set inline every frame)
+       ═══════════════════════════════════════════ */
+    .anim-section {
+      opacity: 0;
+      transform: translateY(40px) scale(0.95);
+      will-change: opacity, transform;
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO / CALLING CARD SECTION
+       ═══════════════════════════════════════════ */
+    .hero-block {
+      text-align: center;
+      position: relative;
+      padding: 2rem 0 1rem;
+    }
+
+    /* Calling Card text */
+    .calling-card-label {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: panelReveal 0.6s ease 0.1s forwards;
+    }
+    .calling-card-label .p5-diamond {
+      animation-delay: 0.3s;
+    }
+
+    /* Name — bold Persona5 energy */
+    .hero-name {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 400;
+      line-height: 0.9;
+      color: var(--white-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      position: relative;
+      display: inline-block;
+      opacity: 0;
+      animation: panelReveal 0.7s ease 0.25s forwards;
+    }
+    .hero-name .name-highlight {
+      color: var(--red-bright);
+      position: relative;
+      display: inline-block;
+    }
+    /* Comic-style spark near name */
+    .hero-name .name-highlight::after {
+      content: '✦';
+      position: absolute;
+      top: -0.4em;
+      right: -0.35em;
+      font-size: 0.3em;
+      color: var(--gold-bright);
+      animation: floatUpDown 2s ease-in-out infinite;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      color: var(--pink-dark);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+      opacity: 0;
+      animation: panelReveal 0.6s ease 0.4s forwards;
+    }
+
+    /* Red slash divider — Persona5 style */
+    .hero-slash {
+      width: 0;
+      height: 4px;
+      background: var(--red-bright);
+      margin: 1.5rem auto;
+      position: relative;
+      animation: slashIn 1s ease 0.6s forwards;
+    }
+    .hero-slash::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 0; right: 0;
+      height: 12px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--red-crimson) 0px,
+        var(--red-crimson) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    }
+
+    /* ═══════════════════════════════════════════
+       INTRO COMIC PANEL
+       ═══════════════════════════════════════════ */
+    .intro-panel {
+      margin-top: 2.5rem;
+    }
+    .intro-panel .panel-tag {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      color: var(--pink-muted);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .intro-panel p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--white-soft);
+      margin-bottom: 0.8rem;
+    }
+    .intro-panel p:last-child { margin-bottom: 0; }
+
+    /* Pop art speech bubble accent */
+    .speech-accent {
+      display: inline-block;
+      background: var(--red-bright);
+      color: var(--white-warm);
+      font-family: var(--font-accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.15em 0.6em;
+      border-radius: 20px;
+      position: relative;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      animation: pulseRed 2s ease-in-out infinite;
+    }
+
+    /* Comic "halftone shadow" text highlight */
+    .halftone-highlight {
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 2px,
+        rgba(230, 0, 18, 0.12) 2px,
+        rgba(230, 0, 18, 0.12) 4px
+      );
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+    }
+
+    /* ═══════════════════════════════════════════
+       SECTION HEADERS
+       ═══════════════════════════════════════════ */
+    .section-header {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--red-bright);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .section-header::before {
+      content: '◆';
+      font-size: 0.6em;
+      color: var(--gold);
+    }
+    .section-header .count {
+      font-family: var(--font-accent);
+      font-size: 0.5em;
+      color: var(--pink-dark);
+      margin-left: auto;
+      letter-spacing: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       TRAITS GRID — comic book panel layout
+       ═══════════════════════════════════════════ */
+    .traits-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.2rem;
+      margin-top: 2.5rem;
+    }
+    @media (min-width: 640px) {
+      .traits-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .trait-card {
+      background: var(--bg-card);
+      border: 3px solid var(--black-pure);
+      outline: 1.5px solid var(--maroon);
+      outline-offset: -6px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.85);
+      transition: all 0.3s ease;
+    }
+    .trait-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.9);
+      outline-color: var(--red-bright);
+    }
+
+    /* Pop art dot corner */
+    .trait-card::after {
+      content: '';
+      position: absolute;
+      bottom: 10px; right: 10px;
+      width: 20px; height: 20px;
+      background: radial-gradient(circle, var(--red-crimson) 3px, transparent 3px);
+      background-size: 10px 10px;
+      opacity: 0.4;
+    }
+
+    .trait-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .trait-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--red-bright);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+    .trait-card p {
+      font-size: 0.9rem;
+      color: var(--white-soft);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    /* ═══════════════════════════════════════════
+       NOW SECTION — Persona5 "Confidant" vibe
+       ═══════════════════════════════════════════ */
+    .now-panel {
+      margin-top: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .now-panel p {
+      line-height: 1.85;
+      margin-bottom: 0.8rem;
+    }
+    .now-panel p:last-child { margin-bottom: 0; }
+
+    /* Persona5 confidant star rank */
+    .confidant-rank {
+      display: flex;
+      gap: 6px;
+      margin: 1rem 0 0.8rem;
+    }
+    .confidant-rank .star {
+      width: 18px; height: 18px;
+      background: var(--red-bright);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      animation: confidantStar 4s ease-in-out infinite;
+    }
+    .confidant-rank .star:nth-child(1) { animation-delay: 0s; }
+    .confidant-rank .star:nth-child(2) { animation-delay: 0.15s; }
+    .confidant-rank .star:nth-child(3) { animation-delay: 0.3s; }
+    .confidant-rank .star:nth-child(4) { animation-delay: 0.45s; }
+    .confidant-rank .star:nth-child(5) { animation-delay: 0.6s; }
+    .confidant-rank .star.empty {
+      background: transparent;
+      border: 2px solid var(--maroon-deep);
+      opacity: 0.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       CONTACT SECTION
+       ═══════════════════════════════════════════ */
+    .contact-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .contact-list li a {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      color: var(--white-soft);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid var(--red-crimson);
+      background: var(--bg-card);
+      transition: all 0.25s ease;
+      position: relative;
+      text-transform: uppercase;
+    }
+    .contact-list li a::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 3px,
+        rgba(230, 0, 18, 0.06) 3px,
+        rgba(230, 0, 18, 0.06) 6px
+      );
+      pointer-events: none;
+    }
+    .contact-list li a:hover {
+      background: var(--red-bright);
+      border-color: var(--red-neon);
+      color: var(--white-warm);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(230, 0, 18, 0.3);
+    }
+    .contact-list li a .arrow {
+      transition: transform 0.3s ease;
+    }
+    .contact-list li a:hover .arrow {
+      transform: translateX(4px);
+    }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════ */
+    .site-footer {
+      margin-top: 0;
+      padding-top: 2rem;
+      border-top: 2px dashed rgba(230, 0, 18, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--pink-muted);
+      opacity: 0.7;
+    }
+
+    /* ── Bottom spacer: lets the last anim-section reach viewport center ── */
+    .bottom-spacer {
+      height: 55vh;
+      min-height: 300px;
+    }
+
+    /* ═══════════════════════════════════════════
+       CORNER DECORATIVE ELEMENTS (Persona5 style)
+       ═══════════════════════════════════════════ */
+    .corner-deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.6;
+    }
+    .corner-deco.tl { top: 20px; left: 20px; }
+    .corner-deco.tr { top: 20px; right: 20px; }
+    .corner-deco.bl { bottom: 20px; left: 20px; }
+    .corner-deco.br { bottom: 20px; right: 20px; }
+
+    .corner-angle {
+      width: 40px; height: 40px;
+      border: 3px solid var(--red-crimson);
+      position: relative;
+    }
+    .corner-angle.tl-shape {
+      border-right: none; border-bottom: none;
+      animation: panelReveal 0.8s ease 0.8s forwards;
+      opacity: 0;
+    }
+    .corner-angle.br-shape {
+      border-left: none; border-top: none;
+      animation: panelReveal 0.8s ease 1s forwards;
+      opacity: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       BLOOD DRIP DECORATION
+       ═══════════════════════════════════════════ */
+    .drip-container {
+      position: fixed;
+      top: 0;
+      right: 60px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .drip {
+      width: 3px;
+      background: linear-gradient(to bottom, var(--red-bright), var(--pink-dark));
+      border-radius: 0 0 3px 3px;
+      margin-bottom: 12px;
+      animation: bloodDrip 2s ease-out forwards;
+      opacity: 0;
+    }
+    .drip:nth-child(1) { animation-delay: 1.2s; height: 40px; }
+    .drip:nth-child(2) { animation-delay: 1.5s; height: 25px; margin-left: 8px; }
+    .drip:nth-child(3) { animation-delay: 1.8s; height: 55px; margin-left: -4px; }
+
+    /* ═══════════════════════════════════════════
+       SCROLLBAR
+       ═══════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--maroon-deep);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--red-crimson); }
+
+    /* ═══════════════════════════════════════════
+       SELECTION
+       ═══════════════════════════════════════════ */
+    ::selection {
+      background: var(--red-bright);
+      color: var(--white-warm);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      .comic-panel {
+        padding: 1.5rem 1rem;
+        box-shadow: 5px 5px 0 rgba(0,0,0,0.9);
+      }
+      .hero-name {
+        font-size: clamp(3rem, 10vw, 5rem);
+      }
+      .trait-card {
+        padding: 1.2rem;
+      }
+      .corner-deco { display: none; }
+      .drip-container { right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ BACKGROUND LAYERS ═══════════════ -->
+  <div class="bg-base"></div>
+  <div class="bg-polkadot"></div>
+  <div class="bg-polkadot-large"></div>
+  <div class="bg-halftone"></div>
+  <div class="bg-action-lines"></div>
+
+  <!-- ═══════════════ CORNER DECORATIONS (P5 Style) ═══════════════ -->
+  <div class="corner-deco tl">
+    <div class="corner-angle tl-shape"></div>
+  </div>
+  <div class="corner-deco br">
+    <div class="corner-angle br-shape"></div>
+  </div>
+
+  <!-- ═══════════════ BLOOD DRIP DECORATION ═══════════════ -->
+  <div class="drip-container">
+    <div class="drip"></div>
+    <div class="drip"></div>
+    <div class="drip"></div>
+  </div>
+
+  <!-- ═══════════════ MAIN CONTENT GRID ═══════════════ -->
+  <main class="page-grid">
+    <article class="content-col">
+      <div class="content-wrapper">
+
+        <!-- ═══ HERO / CALLING CARD ═══ -->
+        <section class="hero-block">
+          <div class="calling-card-label">
+            <span class="p5-diamond gold" style="animation-delay: 0.3s;"></span>
+            CALLING CARD
+            <span class="p5-diamond gold" style="animation-delay: 0.3s;"></span>
+          </div>
+          <h1 class="hero-name">
+            <span class="name-highlight">K</span>aito
+          </h1>
+          <p class="hero-subtitle">· Code Phantom · UI Architect ·</p>
+          <div class="hero-slash"></div>
+        </section>
+
+        <!-- ═══ INTRO COMIC PANEL ═══ -->
+        <section class="anim-section" data-delay="200">
+          <div class="comic-panel intro-panel">
+            <div class="panel-tag">
+              <span class="p5-diamond small" style="animation-delay: 0.6s;"></span>
+              PANEL 01 · ORIGIN STORY
+            </div>
+            <p>
+              Hey — I'm <strong>Kaito</strong>, a <span class="speech-accent">UI Builder</span> and
+              <span class="halftone-highlight">creative coder</span> who believes every interface
+              should steal your heart. I craft digital experiences at the intersection of
+              <em>bold aesthetics</em> and <em>ruthless functionality</em>.
+            </p>
+            <p>
+              Like a phantom thief of design, I sneak into the palaces of ordinary interfaces
+              and steal away the mundane — replacing it with pop, punch, and personality.
+              My calling card reads: <span class="speech-accent">Take Your Heart</span>.
+            </p>
+          </div>
+        </section>
+
+        <!-- ═══ TRAITS / WHAT I DO ═══ -->
+        <section class="anim-section" data-delay="350" style="margin-top: 2.5rem;">
+          <h2 class="section-header">
+            The Arsenal
+            <span class="count">RANK ★★★★☆</span>
+          </h2>
+
+          <div class="traits-grid">
+            <div class="trait-card" style="animation-delay: 0.55s;">
+              <span class="trait-icon">🎨</span>
+              <h3>UI Design</h3>
+              <p>Pop art meets modern minimalism. Bold palettes, thick borders, halftone accents — crafting interfaces that refuse to be ignored.</p>
+            </div>
+            <div class="trait-card" style="animation-delay: 0.65s;">
+              <span class="trait-icon">⚡</span>
+              <h3>Frontend Dev</h3>
+              <p>Pixel-perfect builds with React, Vue, and vanilla magic. Animations that dance, layouts that breathe, code that's clean.</p>
+            </div>
+            <div class="trait-card" style="animation-delay: 0.75s;">
+              <span class="trait-icon">📸</span>
+              <h3>Visual Storytelling</h3>
+              <p>Photography and graphic design collide. Every frame is a comic panel — composition, color, and narrative in one shot.</p>
+            </div>
+            <div class="trait-card" style="animation-delay: 0.85s;">
+              <span class="trait-icon">🎵</span>
+              <h3>Sound & Motion</h3>
+              <p>Interactive animations and sound design that elevate the mundane to the memorable. Rhythm in every interaction.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ NOW SECTION ═══ -->
+        <section class="anim-section" data-delay="500" style="margin-top: 2.5rem;">
+          <h2 class="section-header">
+            Current Heist
+            <span class="count">IN PROGRESS</span>
+          </h2>
+          <div class="comic-panel now-panel">
+            <div class="confidant-rank">
+              <div class="star"></div>
+              <div class="star"></div>
+              <div class="star"></div>
+              <div class="star"></div>
+              <div class="star empty"></div>
+            </div>
+            <p>
+              I'm deep in a phase of <em>wild growth</em> — exploring new frontiers in
+              interface design and creative coding. Each day, I transform ideas into
+              living, breathing prototypes. Successes sharpen my instincts; failures
+              fuel my curiosity.
+            </p>
+            <p>
+              Currently obsessed with: <span class="halftone-highlight">bold maximalist aesthetics</span>,
+              motion-driven storytelling, and interfaces that feel like they have a pulse.
+              I'm drawn to work that evokes the same electricity as a perfectly timed
+              all-out attack — precise, powerful, unforgettable.
+            </p>
+            <p>
+              The mission: <span class="speech-accent">Stay Agile</span> and
+              <span class="speech-accent">Build Beautifully</span>.
+            </p>
+          </div>
+        </section>
+
+        <!-- ═══ CONTACT SECTION ═══ -->
+        <section class="anim-section" style="margin-top: 6rem;">
+          <h2 class="section-header">
+            Send a Calling Card
+            <span class="count">CHANNELS OPEN</span>
+          </h2>
+          <div class="comic-panel">
+            <p style="margin-bottom: 1rem; opacity: 0.8;">
+              Got a palace that needs infiltrating? A UI that needs stealing back from the mundane?
+              Let's form a party.
+            </p>
+            <ul class="contact-list">
+              <li>
+                <a href="mailto:kaito@phantom.ui">
+                  ✉ Email
+                  <span class="arrow">→</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com" target="_blank" rel="noopener">
+                  ⎔ GitHub
+                  <span class="arrow">→</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" target="_blank" rel="noopener">
+                  ◈ Portfolio
+                  <span class="arrow">→</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ═══ BOTTOM SPACER — pushes last section to viewport center ═══ -->
+        <div class="bottom-spacer" aria-hidden="true"></div>
+
+        <!-- ═══ FOOTER ═══ -->
+        <footer class="site-footer">
+          <span>© 2026 Kaito · Phantom Thief of UI</span>
+          <span>CC BY-NC-SA 4.0</span>
+          <span style="font-family: var(--font-display); letter-spacing: 0.1em;">◆ TAKE YOUR HEART ◆</span>
+        </footer>
+
+      </div>
+    </article>
+  </main>
+
+  <!-- ═══════════════ SCRIPTS ═══════════════ -->
+  <script>
+    /* ── Continuous scroll-driven fade in/out (NOT one-time) ── */
+    (function() {
+      const sections = document.querySelectorAll('.anim-section');
+      let ticking = false;
+
+      function updateSections() {
+        const vh = window.innerHeight;
+
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          const elemCenter = (rect.top + rect.bottom) / 2;
+
+          // Where is the element center in the viewport? 0=top edge, 1=bottom edge
+          const ratio = elemCenter / vh;
+
+          // ── Opacity curve ──
+          // [0.00 .. 0.25] → invisible (above viewport)
+          // [0.25 .. 0.40] → fade in (0→1)
+          // [0.40 .. 0.60] → fully visible (1)
+          // [0.60 .. 0.75] → fade out (1→0)
+          // [0.75 .. 1.00] → invisible (below viewport)
+          let opacity;
+          if (ratio < 0.25) {
+            opacity = 0;
+          } else if (ratio < 0.40) {
+            opacity = (ratio - 0.25) / 0.15;          // 0 → 1
+          } else if (ratio < 0.60) {
+            opacity = 1;
+          } else if (ratio < 0.75) {
+            opacity = 1 - (ratio - 0.60) / 0.15;      // 1 → 0
+          } else {
+            opacity = 0;
+          }
+
+          // Clamp
+          opacity = Math.max(0, Math.min(1, opacity));
+
+          // ── Transform ──
+          // Slide up when entering from below; slide down when leaving above
+          const translateY = (1 - opacity) * 50;      // 50px offset when transparent
+          const scale = 0.94 + opacity * 0.06;         // 0.94 → 1.0
+
+          section.style.opacity = opacity;
+          section.style.transform = `translateY(${translateY}px) scale(${scale})`;
+        });
+
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(updateSections);
+          ticking = true;
+        }
+      }
+
+      // Run immediately
+      updateSections();
+
+      // Listen
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      window.addEventListener('load', updateSections);
+    })();
+
+    /* ── Trait card hover micr-interaction ── */
+    (function() {
+      const traitCards = document.querySelectorAll('.trait-card');
+      traitCards.forEach((card, i) => {
+        card.addEventListener('mouseenter', () => {
+          card.style.transition = 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        });
+      });
+    })();
+
+    /* ── Random polka dot sparkle effect on click ── */
+    (function() {
+      document.addEventListener('click', function(e) {
+        const spark = document.createElement('div');
+        const size = Math.random() * 8 + 4;
+        spark.style.cssText = `
+          position: fixed;
+          left: ${e.clientX - size/2}px;
+          top: ${e.clientY - size/2}px;
+          width: ${size}px;
+          height: ${size}px;
+          background: radial-gradient(circle, #e60012, #c71550);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 999;
+          animation: sparkFade 0.6s ease-out forwards;
+        `;
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 600);
+      });
+
+      // Inject spark animation
+      const sparkStyle = document.createElement('style');
+      sparkStyle.textContent = `
+        @keyframes sparkFade {
+          0%   { transform: scale(1); opacity: 1; }
+          100% { transform: scale(3); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(sparkStyle);
+    })();
+  </script>
+
+</body>
+</html>

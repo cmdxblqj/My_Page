@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curtain Transition — Persona 5 × Pop Art</title>
+<style>
+/* ============================================================
+   CSS CUSTOM PROPERTIES — Green Pop Art Palette
+   ============================================================ */
+:root {
+  --deep-curtain: #062210;
+  --curtain-mid: #0d4a22;
+  --curtain-fold: #115c2a;
+  --curtain-highlight: #1d8a3e;
+  --pop-green: #22cc44;
+  --neon-green: #33ff55;
+  --acid-green: #00ff41;
+  --black: #050508;
+  --near-black: #0a0a10;
+  --dark-panel: #0c1410;
+  --white: #f0f0e8;
+  --off-white: #e8e8d8;
+  --gold: #c4a84a;
+  --brass: #8a7a3a;
+  --page-font: 'Georgia', 'Times New Roman', serif;
+  --ui-font: 'Impact', 'Arial Black', 'Franklin Gothic Heavy', sans-serif;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--black);
+  font-family: var(--page-font);
+  color: var(--off-white);
+}
+
+/* ============================================================
+   HALFTONE BACKGROUND PATTERN
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  --dot-size: 3px;
+  --dot-spacing: 18px;
+  background-image: radial-gradient(circle at center, rgba(34,204,68,0.08) var(--dot-size), transparent var(--dot-size));
+  background-size: var(--dot-spacing) var(--dot-spacing);
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 15%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.3) 85%, transparent 100%);
+}
+
+/* ============================================================
+   MAIN APP CONTAINER
+   ============================================================ */
+.app-container {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* ============================================================
+   PAGE PANELS — Persona 5 Angular Style
+   ============================================================ */
+.page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  opacity: 0;
+  padding: 4rem;
+}
+.page.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Diagonal corner accents */
+.page::before {
+  content: '';
+  position: absolute;
+  top: 40px; left: 40px;
+  width: 80px; height: 80px;
+  border-left: 3px solid var(--pop-green);
+  border-top: 3px solid var(--pop-green);
+  opacity: 0.6;
+}
+.page::after {
+  content: '';
+  position: absolute;
+  bottom: 40px; right: 40px;
+  width: 80px; height: 80px;
+  border-right: 3px solid var(--pop-green);
+  border-bottom: 3px solid var(--pop-green);
+  opacity: 0.6;
+}
+
+/* ---- Diamond sparkle decorations ---- */
+.sparkle {
+  position: absolute;
+  width: 12px; height: 12px;
+  background: var(--neon-green);
+  transform: rotate(45deg);
+  opacity: 0;
+  animation: sparkle-pulse 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px var(--acid-green));
+}
+.sparkle:nth-child(1) { top: 15%; left: 12%; animation-delay: 0s; }
+.sparkle:nth-child(2) { top: 22%; right: 18%; animation-delay: 0.6s; width: 8px; height: 8px; }
+.sparkle:nth-child(3) { bottom: 25%; left: 8%; animation-delay: 1.2s; width: 10px; height: 10px; }
+.sparkle:nth-child(4) { bottom: 18%; right: 12%; animation-delay: 1.8s; width: 6px; height: 6px; }
+.sparkle:nth-child(5) { top: 40%; left: 20%; animation-delay: 0.3s; width: 7px; height: 7px; }
+
+@keyframes sparkle-pulse {
+  0%, 100% { opacity: 0; transform: rotate(45deg) scale(0.5); }
+  50% { opacity: 1; transform: rotate(45deg) scale(1.3); }
+}
+
+/* ---- Page content panels ---- */
+.page-panel {
+  position: relative;
+  background: var(--dark-panel);
+  border: 2px solid var(--pop-green);
+  padding: 3rem 4rem;
+  max-width: 620px;
+  width: 90%;
+  text-align: center;
+  z-index: 2;
+  /* Angular cut-out effect */
+  clip-path: polygon(
+    0% 12px, 12px 0%, calc(100% - 12px) 0%, 100% 12px,
+    100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px)
+  );
+  box-shadow:
+    0 0 0 4px var(--near-black),
+    0 0 0 6px var(--pop-green),
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 0 80px rgba(34,204,68,0.03);
+}
+
+.page-panel::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(34,204,68,0.2);
+  pointer-events: none;
+  clip-path: polygon(
+    0% 6px, 6px 0%, calc(100% - 6px) 0%, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px)
+  );
+}
+
+.page-panel h1 {
+  font-family: var(--ui-font);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--off-white);
+  margin-bottom: 0.5rem;
+  text-shadow: 3px 3px 0 var(--pop-green);
+  line-height: 1.1;
+}
+
+.page-panel .subtitle {
+  font-family: var(--ui-font);
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--pop-green);
+  margin-bottom: 2rem;
+}
+
+.page-panel .body-text {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: rgba(232,232,216,0.75);
+  margin-bottom: 2.5rem;
+}
+
+/* Persona 5 style stat bars */
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+  font-family: var(--ui-font);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.stat-label {
+  width: 100px;
+  text-align: right;
+  color: var(--pop-green);
+  flex-shrink: 0;
+}
+.stat-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--curtain-mid), var(--pop-green));
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 20px;
+  background: var(--neon-green);
+  filter: blur(4px);
+}
+
+/* ---- Transition trigger button ---- */
+.transition-btn {
+  position: relative;
+  z-index: 10;
+  font-family: var(--ui-font);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--off-white);
+  background: transparent;
+  border: 3px solid var(--pop-green);
+  padding: 1rem 2.5rem;
+  cursor: pointer;
+  margin-top: 2rem;
+  clip-path: polygon(
+    8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px
+  );
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+.transition-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--pop-green), var(--curtain-mid));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: -1;
+}
+.transition-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(34,204,68,0.3);
+  border-color: var(--neon-green);
+  color: var(--black);
+}
+.transition-btn:hover::before { opacity: 1; }
+.transition-btn:active { transform: translateY(0); }
+
+.transition-btn .btn-arrow {
+  display: inline-block;
+  margin-left: 0.5rem;
+  transition: transform 0.25s ease;
+}
+.transition-btn:hover .btn-arrow { transform: translateX(4px); }
+
+/* Page B specific */
+.page-b .page-panel h1 {
+  text-shadow: 3px 3px 0 var(--acid-green);
+}
+.page-b .page-panel {
+  border-color: var(--acid-green);
+  box-shadow: 0 0 0 4px var(--near-black), 0 0 0 6px var(--acid-green), 0 20px 60px rgba(0,0,0,0.6);
+}
+
+/* ============================================================
+   CURTAIN CANVAS OVERLAY
+   ============================================================ */
+#curtain-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  /* Transparent — page content shows through when curtains are open.
+     Body background (#050508) prevents any white flash on load. */
+}
+
+/* ============================================================
+   LOADING INDICATOR — Persona 5 Style
+   ============================================================ */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+}
+.loading-overlay.visible { opacity: 1; }
+
+.loading-content {
+  text-align: center;
+  position: relative;
+}
+
+/* Persona 5 star — rotating burst */
+.loading-star-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 2.5rem;
+}
+.loading-star {
+  display: inline-block;
+  width: 56px; height: 56px;
+  background: var(--neon-green);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: loading-star-rotate 0.7s steps(8) infinite;
+  filter: drop-shadow(0 0 12px var(--acid-green)) drop-shadow(0 0 28px var(--pop-green));
+}
+.loading-star-ring {
+  position: absolute;
+  inset: -18px;
+  border: 2px solid rgba(51,255,85,0.25);
+  border-radius: 50%;
+  animation: loading-ring-pulse 1.2s ease-in-out infinite;
+}
+.loading-star-ring:nth-child(2) {
+  inset: -30px;
+  border-color: rgba(51,255,85,0.12);
+  animation-delay: 0.4s;
+}
+@keyframes loading-star-rotate {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(0.9); }
+  50% { transform: rotate(180deg) scale(0.82); }
+  75% { transform: rotate(270deg) scale(0.9); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes loading-ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+}
+
+.loading-text {
+  font-family: var(--ui-font);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.35em;
+  color: var(--off-white);
+  text-shadow:
+    3px 3px 0 var(--pop-green),
+    0 0 40px rgba(34,204,68,0.4);
+  animation: loading-text-pulse 0.55s ease-in-out infinite alternate;
+  margin-bottom: 0.4rem;
+}
+.loading-subtitle {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  color: rgba(200,210,180,0.55);
+  margin-bottom: 1.5rem;
+}
+@keyframes loading-text-pulse {
+  from { opacity: 0.55; text-shadow: 3px 3px 0 var(--pop-green), 0 0 20px rgba(34,204,68,0.2); }
+  to { opacity: 1; text-shadow: 3px 3px 0 var(--pop-green), 0 0 50px rgba(34,204,68,0.6); }
+}
+
+.loading-dots {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  margin-top: 0.8rem;
+}
+.loading-dot {
+  width: 9px; height: 9px;
+  background: var(--neon-green);
+  transform: rotate(45deg);
+  animation: loading-dot-bounce 0.65s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px var(--acid-green));
+}
+.loading-dot:nth-child(2) { animation-delay: 0.14s; }
+.loading-dot:nth-child(3) { animation-delay: 0.28s; }
+@keyframes loading-dot-bounce {
+  0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.5; }
+  50% { transform: rotate(45deg) translateY(-14px); opacity: 1; }
+}
+
+/* ============================================================
+   COMIC BURST DECORATIONS (Pop Art)
+   ============================================================ */
+.comic-burst {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.comic-burst.visible { opacity: 1; }
+
+.burst-svg {
+  width: 180px; height: 180px;
+  filter: drop-shadow(0 0 20px rgba(34,204,68,0.5));
+}
+.burst-left { top: 50%; left: -60px; transform: translateY(-50%); }
+.burst-right { top: 50%; right: -60px; transform: translateY(-50%); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .page-panel { padding: 2rem 1.5rem; }
+  .page-panel h1 { font-size: 1.6rem; }
+  .sparkle { display: none; }
+  .page::before, .page::after { width: 40px; height: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
+<div class="app-container">
+
+  <!-- Page A — "Velvet Room" -->
+  <div class="page page-a active" id="page-a">
+    <div class="sparkle"></div><div class="sparkle"></div><div class="sparkle"></div>
+    <div class="sparkle"></div><div class="sparkle"></div>
+    <div class="page-panel">
+      <p class="subtitle">━━ Welcome to the ━━</p>
+      <h1>Velvet Room</h1>
+      <p class="body-text">
+        Between dream and reality, mind and matter —<br>
+        a theater of the soul awaits. The curtains part<br>
+        only for those who dare to seize their truth.
+      </p>
+      <div class="stat-row">
+        <span class="stat-label">Courage</span>
+        <span class="stat-bar-track"><span class="stat-bar-fill" style="width:78%"></span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Charm</span>
+        <span class="stat-bar-track"><span class="stat-bar-fill" style="width:62%"></span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Knowledge</span>
+        <span class="stat-bar-track"><span class="stat-bar-fill" style="width:91%"></span></span>
+      </div>
+      <button class="transition-btn" id="btn-forward" onclick="triggerTransition('forward')">
+        Enter Metaverse <span class="btn-arrow">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Page B — "Metaverse" -->
+  <div class="page page-b" id="page-b">
+    <div class="sparkle"></div><div class="sparkle"></div><div class="sparkle"></div>
+    <div class="sparkle"></div><div class="sparkle"></div>
+    <div class="page-panel">
+      <p class="subtitle">━━ Now entering ━━</p>
+      <h1>Metaverse</h1>
+      <p class="body-text">
+        The distorted world reflects desire — palaces of cognition<br>
+        rise and fall. Steal back what was taken.<br>
+        Your rebellion begins now.
+      </p>
+      <div class="stat-row">
+        <span class="stat-label">Proficiency</span>
+        <span class="stat-bar-track"><span class="stat-bar-fill" style="width:85%"></span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Guts</span>
+        <span class="stat-bar-track"><span class="stat-bar-fill" style="width:70%"></span></span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Kindness</span>
+        <span class="stat-bar-track"><span class="stat-bar-fill" style="width:55%"></span></span>
+      </div>
+      <button class="transition-btn" id="btn-back" onclick="triggerTransition('back')">
+        <span class="btn-arrow" style="margin-right:0.5rem;margin-left:0">◀</span> Return to Velvet Room
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Canvas for curtain rendering -->
+<canvas id="curtain-canvas"></canvas>
+
+<!-- Loading indicator — Persona 5 "Take Your Heart" style -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-content">
+    <div class="loading-star-container">
+      <div class="loading-star-ring"></div>
+      <div class="loading-star-ring"></div>
+      <div class="loading-star"></div>
+    </div>
+    <div class="loading-text">TAKE YOUR HEART</div>
+    <div class="loading-subtitle">Stealing your destination&hellip;</div>
+    <div class="loading-dots">
+      <div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Comic burst decorations -->
+<div class="comic-burst burst-left" id="burst-left">
+  <svg class="burst-svg" viewBox="0 0 180 180">
+    <polygon points="90,10 100,40 130,25 115,55 150,55 120,70 140,98 108,82 90,120 72,82 40,98 60,70 30,55 65,55 50,25 80,40"
+      fill="none" stroke="#33ff55" stroke-width="2.5" opacity="0.7"/>
+    <polygon points="90,30 96,50 115,42 105,60 125,60 108,72 118,90 98,80 90,102 82,80 62,90 72,72 55,60 75,60 65,42 84,50"
+      fill="#33ff55" opacity="0.15"/>
+  </svg>
+</div>
+<div class="comic-burst burst-right" id="burst-right">
+  <svg class="burst-svg" viewBox="0 0 180 180">
+    <polygon points="90,10 100,40 130,25 115,55 150,55 120,70 140,98 108,82 90,120 72,82 40,98 60,70 30,55 65,55 50,25 80,40"
+      fill="none" stroke="#33ff55" stroke-width="2.5" opacity="0.7"/>
+    <polygon points="90,30 96,50 115,42 105,60 125,60 108,72 118,90 98,80 90,102 82,80 62,90 72,72 55,60 75,60 65,42 84,50"
+      fill="#33ff55" opacity="0.15"/>
+  </svg>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Curtain Engine + Page Transition
+     ============================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  // ── DOM refs ────────────────────────────────────────────
+  const canvas = document.getElementById('curtain-canvas');
+  const ctx = canvas.getContext('2d');
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const burstLeft = document.getElementById('burst-left');
+  const burstRight = document.getElementById('burst-right');
+  const pageA = document.getElementById('page-a');
+  const pageB = document.getElementById('page-b');
+  const btnForward = document.getElementById('btn-forward');
+  const btnBack = document.getElementById('btn-back');
+
+  // ── State ───────────────────────────────────────────────
+  let currentPage = 'a';           // 'a' | 'b'
+  let animState = 'open';          // 'open' | 'closing' | 'closed' | 'opening'
+  let animProgress = 0;            // 0..1 within current phase
+  let animStartTime = 0;
+  let holdStartTime = 0;
+  let canvasW, canvasH, dpr;
+  let curtainHalfW;                // half canvas width = each curtain panel width
+  let curtainTex = null;           // offscreen texture
+  let rodTex = null;               // curtain rod texture
+  let rafId = null;
+  let isTransitioning = false;
+  let pendingDirection = null;
+  let loadingTimer = null;
+
+  const CLOSE_DURATION = 1000;     // 1 second
+  const OPEN_DURATION = 1000;      // 1 second
+  const STRIP_H = 3;               // pixel height of each horizontal strip
+  const LAG_FACTOR = 0.22;        // bottom lags behind top by 22% of animation
+  const OVERLAP = 16;              // px overlap past center — ensures zero gap even during wave
+  const FOLD_WIDTH = 64;           // pixels per curtain fold
+
+  // ── Resize ──────────────────────────────────────────────
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2); // cap for perf
+    canvasW = window.innerWidth;
+    canvasH = window.innerHeight;
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    canvas.style.width = canvasW + 'px';
+    canvas.style.height = canvasH + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    ctx.scale(dpr, dpr);
+    curtainHalfW = Math.ceil(canvasW / 2) + OVERLAP; // overlap ensures no gap at center
+    buildTextures();
+  }
+
+  // ── Color helpers ───────────────────────────────────────
+  function lerpC(c1, c2, t) {
+    return [
+      c1[0] + (c2[0] - c1[0]) * t,
+      c1[1] + (c2[1] - c1[1]) * t,
+      c1[2] + (c2[2] - c1[2]) * t
+    ];
+  }
+  function rgb(c) { return `rgb(${c[0]|0},${c[1]|0},${c[2]|0})`; }
+
+  // ── Build curtain texture (Pop Art solid color blocks) ──
+  function buildTextures() {
+    if (curtainHalfW < 1 || canvasH < 1) return;
+
+    // --- Curtain panel texture (one half) ---
+    const tc = document.createElement('canvas');
+    tc.width = curtainHalfW;
+    tc.height = canvasH;
+    const tctx = tc.getContext('2d');
+
+    // -- Persona 5 / Pop Art color blocks --
+    // Bold vertical stripes of high-saturation greens + black
+    const blocks = [
+      { w: 22, color: '#050508' },            // black
+      { w: 74, color: '#004d15' },            // deep dark green
+      { w: 38, color: '#00cc33', dots: true, dotColor: '#050508', dotSize: 4, dotSpacing: 10 }, // neon + black dots
+      { w: 18, color: '#050508' },            // black divider
+      { w: 56, color: '#008822' },            // saturated green
+      { w: 44, color: '#00330d' },            // darker green
+      { w: 26, color: '#00ff44', dots: true, dotColor: '#00330d', dotSize: 3, dotSpacing: 8 }, // neon + dark dots
+      { w: 20, color: '#050508' },            // black divider
+      { w: 68, color: '#006622' },            // mid green
+      { w: 32, color: '#00dd33' },            // bright pop green
+      { w: 16, color: '#050508' },            // black
+      { w: 50, color: '#00551a', dots: true, dotColor: '#00ff44', dotSize: 3.5, dotSpacing: 11 }, // mid + neon dots
+      { w: 42, color: '#00aa22' },            // pop green
+    ];
+
+    // Draw blocks
+    let bx = 0;
+    for (const block of blocks) {
+      const w = Math.min(block.w, curtainHalfW - bx);
+      if (w <= 0) break;
+
+      // Base color fill
+      tctx.fillStyle = block.color;
+      tctx.fillRect(bx, 0, w, canvasH);
+
+      // Ben-Day dots overlay (Pop Art halftone)
+      if (block.dots) {
+        const ds = block.dotSize;
+        const dsp = block.dotSpacing;
+        for (let dy = ds; dy < canvasH; dy += dsp) {
+          const rowOffset = (Math.floor(dy / dsp) % 2) * (dsp / 2); // staggered
+          for (let dx = rowOffset; dx < w; dx += dsp) {
+            tctx.fillStyle = block.dotColor;
+            tctx.beginPath();
+            tctx.arc(bx + dx, dy, ds, 0, Math.PI * 2);
+            tctx.fill();
+          }
+        }
+      }
+
+      bx += w;
+    }
+
+    // Fill remaining width with repeating pattern
+    if (bx < curtainHalfW) {
+      let bi = 0;
+      while (bx < curtainHalfW) {
+        const block = blocks[bi % blocks.length];
+        const w = Math.min(block.w, curtainHalfW - bx);
+        tctx.fillStyle = block.color;
+        tctx.fillRect(bx, 0, w, canvasH);
+        if (block.dots) {
+          const ds = block.dotSize;
+          const dsp = block.dotSpacing;
+          for (let dy = ds; dy < canvasH; dy += dsp) {
+            const rowOffset = (Math.floor(dy / dsp) % 2) * (dsp / 2);
+            for (let dx = rowOffset; dx < w; dx += dsp) {
+              tctx.fillStyle = block.dotColor;
+              tctx.beginPath();
+              tctx.arc(bx + dx, dy, ds, 0, Math.PI * 2);
+              tctx.fill();
+            }
+          }
+        }
+        bx += w;
+        bi++;
+      }
+    }
+
+    // -- Persona 5 angular diamond decorations --
+    function drawDiamond(cx, cy, size, fill, stroke) {
+      tctx.fillStyle = fill;
+      tctx.strokeStyle = stroke;
+      tctx.lineWidth = 1.5;
+      tctx.beginPath();
+      tctx.moveTo(cx, cy - size);
+      tctx.lineTo(cx + size * 0.6, cy);
+      tctx.lineTo(cx, cy + size);
+      tctx.lineTo(cx - size * 0.6, cy);
+      tctx.closePath();
+      tctx.fill();
+      tctx.stroke();
+    }
+
+    // Scatter diamonds on black stripes
+    tctx.globalAlpha = 0.7;
+    bx = 0;
+    for (const block of blocks) {
+      if (block.color === '#050508' && block.w >= 16) {
+        const cx = bx + block.w / 2;
+        for (let dy = 60; dy < canvasH - 40; dy += 100 + Math.random() * 40) {
+          const size = 5 + Math.random() * 6;
+          drawDiamond(cx, dy, size, 'transparent', '#00ff44');
+        }
+      }
+      bx += block.w;
+    }
+    tctx.globalAlpha = 1;
+
+    // -- Bottom: angular Persona 5 cut-out edge --
+    const edgeH = 30;
+    tctx.fillStyle = '#050508';
+    tctx.beginPath();
+    tctx.moveTo(0, canvasH);
+    for (let ex = 0; ex < curtainHalfW; ex += 35) {
+      tctx.lineTo(ex, canvasH - edgeH);
+      tctx.lineTo(ex + 17, canvasH - edgeH + 15);
+      tctx.lineTo(ex + 35, canvasH);
+    }
+    tctx.lineTo(curtainHalfW, canvasH);
+    tctx.closePath();
+    tctx.fill();
+
+    // Thin neon line above the angular edge
+    tctx.strokeStyle = '#00ff44';
+    tctx.lineWidth = 2;
+    tctx.beginPath();
+    tctx.moveTo(0, canvasH - edgeH);
+    for (let ex = 0; ex < curtainHalfW; ex += 35) {
+      tctx.lineTo(ex, canvasH - edgeH);
+      tctx.lineTo(ex + 17, canvasH - edgeH + 15);
+      tctx.lineTo(ex + 35, canvasH - edgeH);
+    }
+    tctx.lineTo(curtainHalfW, canvasH - edgeH);
+    tctx.stroke();
+
+    // -- Vertical highlight lines between blocks (thin neon) --
+    bx = 0;
+    tctx.strokeStyle = 'rgba(0,255,68,0.2)';
+    tctx.lineWidth = 1;
+    for (const block of blocks) {
+      bx += block.w;
+      if (bx < curtainHalfW) {
+        tctx.beginPath();
+        tctx.moveTo(bx, 0);
+        tctx.lineTo(bx, canvasH);
+        tctx.stroke();
+      }
+    }
+
+    curtainTex = tc;
+
+    // --- Curtain rod (Persona 5 flat style) ---
+    const rodH = 30;
+    const rc = document.createElement('canvas');
+    rc.width = canvasW;
+    rc.height = rodH;
+    const rctx = rc.getContext('2d');
+
+    // Solid black rod body
+    rctx.fillStyle = '#050508';
+    rctx.fillRect(0, 0, canvasW, rodH);
+
+    // Neon green accent line
+    rctx.strokeStyle = '#00ff44';
+    rctx.lineWidth = 3;
+    rctx.beginPath();
+    rctx.moveTo(20, rodH - 4);
+    rctx.lineTo(canvasW - 20, rodH - 4);
+    rctx.stroke();
+
+    // Second thinner accent
+    rctx.strokeStyle = '#00cc33';
+    rctx.lineWidth = 1;
+    rctx.beginPath();
+    rctx.moveTo(20, rodH - 8);
+    rctx.lineTo(canvasW - 20, rodH - 8);
+    rctx.stroke();
+
+    // Diamond end caps (instead of finials)
+    for (const fx of [20, canvasW - 20]) {
+      rctx.fillStyle = '#050508';
+      rctx.strokeStyle = '#00ff44';
+      rctx.lineWidth = 2.5;
+      rctx.beginPath();
+      rctx.moveTo(fx, rodH/2 - 9);
+      rctx.lineTo(fx + 7, rodH/2);
+      rctx.lineTo(fx, rodH/2 + 9);
+      rctx.lineTo(fx - 7, rodH/2);
+      rctx.closePath();
+      rctx.fill();
+      rctx.stroke();
+      // Inner dot
+      rctx.fillStyle = '#00ff44';
+      rctx.beginPath();
+      rctx.arc(fx, rodH/2, 3, 0, Math.PI * 2);
+      rctx.fill();
+    }
+
+    // Small ring marks along the rod
+    for (let rx = 50; rx < canvasW - 50; rx += 42) {
+      rctx.fillStyle = '#00cc33';
+      rctx.fillRect(rx - 1, rodH - 13, 2, 8);
+    }
+
+    rodTex = rc;
+  }
+
+  // ── Easing ──────────────────────────────────────────────
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3)/2;
+  }
+
+  function easeOutExpo(t) {
+    return t >= 1 ? 1 : 1 - Math.pow(2, -10*t);
+  }
+
+  // Slight overshoot — fabric bounce when curtains meet or reach edges
+  function easeOutBackLight(t) {
+    const c1 = 1.2; // overshoot amount (subtle)
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  }
+
+  // Closing: dramatic ease-out with tiny bounce at meet
+  function easeClose(t) {
+    if (t >= 1) return 1;
+    // Blend: mostly expo, touch of back for bounce near end
+    const expo = 1 - Math.pow(2, -10*t);
+    if (t < 0.85) return expo;
+    const blend = (t - 0.85) / 0.15; // 0→1 over last 15%
+    const back = easeOutBackLight(t);
+    return expo * (1 - blend) + back * blend;
+  }
+
+  // Opening: quick start, smooth deceleration
+  function easeOpen(t) {
+    if (t >= 1) return 1;
+    // Fast jerk open then glide
+    const expo = 1 - Math.pow(2, -8*t);
+    // Slight settle at end
+    if (t < 0.9) return expo;
+    const blend = (t - 0.9) / 0.1;
+    const back = easeOutBackLight(t);
+    return expo * (1 - blend) + back * blend;
+  }
+
+  // ── Get curtain X offset for a given Y ──────────────────
+  function getOffset(y, globalProgress, phase) {
+    const yNorm = y / canvasH;
+    const lag = yNorm * LAG_FACTOR;
+    const localP = Math.max(0, Math.min(1, globalProgress - lag));
+
+    const eased = (phase === 'closing') ? easeClose(localP) : easeOpen(localP);
+
+    return curtainHalfW * eased;
+  }
+
+  // ── Get wave displacement for hold state ────────────────
+  function getHoldWave(y, time) {
+    const t = time * 0.001;
+    return (
+      Math.sin(y * 0.014 + t * 1.8) * 3.5 +
+      Math.sin(y * 0.022 + t * 1.2) * 2.2 +
+      Math.sin(y * 0.007 + t * 0.7) * 1.8 +
+      Math.cos(y * 0.031 + t * 2.3) * 1.0
+    );
+  }
+
+  // ── Draw frame ──────────────────────────────────────────
+  function draw(now) {
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    if (animState === 'open') {
+      // Curtains fully open — draw rod only
+      drawRod(now);
+      return;
+    }
+
+    if (!curtainTex || !rodTex) return;
+
+    const stripH = Math.max(1, STRIP_H);
+
+    if (animState === 'closed') {
+      // ── HOLD STATE: curtains at center with ripple ──────
+      const elapsed = now - holdStartTime;
+
+      // Left curtain strips
+      for (let y = 0; y < canvasH; y += stripH) {
+        const wave = getHoldWave(y, elapsed);
+        const drawH = Math.min(stripH, canvasH - y);
+        const dstX = -curtainHalfW + curtainHalfW + wave; // closed position + wave
+        ctx.drawImage(curtainTex, 0, y, curtainHalfW, drawH, dstX, y, curtainHalfW, drawH);
+      }
+      // Right curtain strips (mirrored)
+      ctx.save();
+      ctx.translate(canvasW, 0);
+      ctx.scale(-1, 1);
+      for (let y = 0; y < canvasH; y += stripH) {
+        const wave = getHoldWave(y, elapsed);
+        const drawH = Math.min(stripH, canvasH - y);
+        // In flipped space: -curtainHalfW → off screen right, 0 → left edge at center
+        const dstX = -curtainHalfW + curtainHalfW + wave; // closed: dstX=0+wave → covers right half
+        ctx.drawImage(curtainTex, 0, y, curtainHalfW, drawH, dstX, y, curtainHalfW, drawH);
+      }
+      ctx.restore();
+
+    } else {
+      // ── CLOSING or OPENING ──────────────────────────────
+      const isClosing = (animState === 'closing');
+
+      // Left curtain strips
+      for (let y = 0; y < canvasH; y += stripH) {
+        const drawH = Math.min(stripH, canvasH - y);
+        let offset = getOffset(y, animProgress, animState);
+        if (!isClosing) offset = curtainHalfW - offset; // reverse for opening
+
+        const dstX = -curtainHalfW + offset;
+        ctx.drawImage(curtainTex, 0, y, curtainHalfW, drawH, dstX, y, curtainHalfW, drawH);
+      }
+
+      // Right curtain strips (mirrored)
+      ctx.save();
+      ctx.translate(canvasW, 0);
+      ctx.scale(-1, 1);
+      for (let y = 0; y < canvasH; y += stripH) {
+        const drawH = Math.min(stripH, canvasH - y);
+        let offset = getOffset(y, animProgress, animState);
+        if (!isClosing) offset = curtainHalfW - offset;
+
+        // flipped space: -curtainHalfW=off-screen-right, 0=left-edge-at-center
+        const dstX = -curtainHalfW + offset;
+        ctx.drawImage(curtainTex, 0, y, curtainHalfW, drawH, dstX, y, curtainHalfW, drawH);
+      }
+      ctx.restore();
+    }
+
+    // Draw curtain rod on top of curtains
+    drawRod(now);
+
+    // Draw center gap shadow when closing/opening
+    if (animState === 'closing' || animState === 'opening') {
+      drawCenterShadow();
+    }
+  }
+
+  function drawRod(now) {
+    if (!rodTex) return;
+    // Rod sits near top of screen
+    const rodY = 0;
+    ctx.drawImage(rodTex, 0, 0, canvasW, 30, 0, rodY, canvasW, 30);
+  }
+
+  function drawCenterShadow() {
+    // Persona 5 style: sharp neon seam + light spill when curtains meet
+    const proximity = animState === 'closing' ? animProgress : (1 - animProgress);
+    const alpha = proximity;
+
+    // Sharp neon green seam line right at center
+    if (proximity > 0.4) {
+      const seamAlpha = (proximity - 0.4) / 0.6;
+      ctx.strokeStyle = `rgba(0,255,68,${seamAlpha * 0.9})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(canvasW/2, 30);
+      ctx.lineTo(canvasW/2, canvasH);
+      ctx.stroke();
+
+      // Glow halo around seam
+      const glowGrad = ctx.createLinearGradient(canvasW/2 - 25, 0, canvasW/2 + 25, 0);
+      glowGrad.addColorStop(0, 'rgba(0,255,68,0)');
+      glowGrad.addColorStop(0.3, `rgba(0,255,68,${seamAlpha * 0.2})`);
+      glowGrad.addColorStop(0.5, `rgba(0,255,68,${seamAlpha * 0.35})`);
+      glowGrad.addColorStop(0.7, `rgba(0,255,68,${seamAlpha * 0.2})`);
+      glowGrad.addColorStop(1, 'rgba(0,255,68,0)');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(canvasW/2 - 25, 0, 50, canvasH);
+    }
+
+    // Dark shadow behind seam for depth
+    if (proximity > 0.7) {
+      const darkAlpha = (proximity - 0.7) / 0.3 * 0.4;
+      const darkGrad = ctx.createLinearGradient(canvasW/2 - 15, 0, canvasW/2 + 15, 0);
+      darkGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      darkGrad.addColorStop(0.4, `rgba(0,0,0,${darkAlpha})`);
+      darkGrad.addColorStop(0.5, `rgba(0,0,0,${darkAlpha * 1.3})`);
+      darkGrad.addColorStop(0.6, `rgba(0,0,0,${darkAlpha})`);
+      darkGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = darkGrad;
+      ctx.fillRect(canvasW/2 - 15, 0, 30, canvasH);
+    }
+  }
+
+  // ── Animation loop ──────────────────────────────────────
+  function loop(now) {
+    // Update animation progress
+    if (animState === 'closing') {
+      const elapsed = now - animStartTime;
+      animProgress = Math.min(1, elapsed / CLOSE_DURATION);
+      if (animProgress >= 1) {
+        animProgress = 1;
+        animState = 'closed';
+        holdStartTime = now;
+        onCurtainsClosed();
+      }
+    } else if (animState === 'opening') {
+      const elapsed = now - animStartTime;
+      animProgress = Math.min(1, elapsed / OPEN_DURATION);
+      if (animProgress >= 1) {
+        animProgress = 1;
+        animState = 'open';
+        onCurtainsOpened();
+      }
+    }
+
+    draw(now);
+
+    if (animState !== 'open') {
+      rafId = requestAnimationFrame(loop);
+    } else {
+      // Final draw then stop the loop
+      draw(now);
+      rafId = null;
+    }
+  }
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(loop);
+    }
+  }
+
+  // ── Page transition logic ───────────────────────────────
+  function triggerTransition(direction) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+    pendingDirection = direction;
+
+    // Disable buttons during transition
+    btnForward.style.pointerEvents = 'none';
+    btnBack.style.pointerEvents = 'none';
+
+    // Show comic bursts
+    burstLeft.classList.add('visible');
+    burstRight.classList.add('visible');
+
+    // Start closing curtains
+    animState = 'closing';
+    animProgress = 0;
+    animStartTime = performance.now();
+    startLoop();
+  }
+
+  function onCurtainsClosed() {
+    // Hide comic bursts
+    burstLeft.classList.remove('visible');
+    burstRight.classList.remove('visible');
+
+    // Show loading indicator
+    loadingOverlay.classList.add('visible');
+
+    // Simulate page loading (1.5–3 second random delay)
+    const loadDelay = 1500 + Math.random() * 2000;
+    loadingTimer = setTimeout(() => {
+      onLoadingComplete();
+    }, loadDelay);
+  }
+
+  function onLoadingComplete() {
+    // Hide loading indicator
+    loadingOverlay.classList.remove('visible');
+
+    // Swap pages behind the curtain
+    if (pendingDirection === 'forward') {
+      pageA.classList.remove('active');
+      pageB.classList.add('active');
+      currentPage = 'b';
+    } else {
+      pageB.classList.remove('active');
+      pageA.classList.add('active');
+      currentPage = 'a';
+    }
+
+    // Start opening curtains
+    animState = 'opening';
+    animProgress = 0;
+    animStartTime = performance.now();
+    startLoop();
+  }
+
+  function onCurtainsOpened() {
+    // Transition complete
+    isTransitioning = false;
+    pendingDirection = null;
+
+    // Re-enable buttons
+    btnForward.style.pointerEvents = 'auto';
+    btnBack.style.pointerEvents = 'auto';
+  }
+
+  // ── Initialize ──────────────────────────────────────────
+  function init() {
+    try {
+      resize();
+    } catch (e) {
+      console.error('Curtain init error:', e);
+    }
+    window.addEventListener('resize', () => {
+      try {
+        resize();
+        if (!rafId) draw(performance.now());
+      } catch (e) { /* ignore resize errors */ }
+    });
+
+    // Draw initial state (curtains open, rod visible)
+    try {
+      draw(performance.now());
+    } catch (e) {
+      console.error('Curtain draw error:', e);
+    }
+  }
+
+  // Expose trigger early — before init — so buttons always work
+  window.triggerTransition = triggerTransition;
+
+  init();
+
+  console.log('%c🎭 Curtain Transition Ready %c| %cPersona 5 × Pop Art %c| Green Velvet Theater',
+    'color:#33ff55;font-size:16px;',
+    '',
+    'color:#c4a84a;font-weight:bold;',
+    '');
+  console.log('%c   "Between dream and reality, mind and matter..."',
+    'color:#888;font-style:italic;');
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbital Experience</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fredoka:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/orbital.css">
+<link rel="stylesheet" href="css/subpage1.css">
+<link rel="stylesheet" href="css/subpage2.css">
+<link rel="stylesheet" href="css/subpage3.css">
+<link rel="stylesheet" href="css/subpage4.css">
+<link rel="stylesheet" href="css/responsive.css">
+<style>@keyframes sparkFade{0%{transform:scale(1);opacity:1}100%{transform:scale(3);opacity:0}}</style>
+</head><body>
+
+<svg style="position:absolute;width:0;height:0;" aria-hidden="true"><defs>
+  <filter id="waveDistort" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+
+<div class="bg-layer" aria-hidden="true"></div>
+<div class="bg-wave" aria-hidden="true"></div>
+<div class="vignette-overlay" aria-hidden="true"></div>
+<div class="grain-overlay" aria-hidden="true"></div>
+
+<canvas id="waterCanvas"></canvas>
+<div id="popTransitionOverlay" class="pop-overlay"></div>
+
+<!-- ═══ FIXED CONTROLS ═══ -->
+<div class="fixed-controls">
+  <div class="music-control" id="musicToggle" title="Toggle BGM">
+    <svg class="disc-icon" id="discIcon" width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="25" fill="#181820" stroke="#2a2a35" stroke-width="1.2"/><circle cx="26" cy="26" r="22" fill="none" stroke="#22222c" stroke-width="0.5"/><circle cx="26" cy="26" r="19" fill="none" stroke="#24242e" stroke-width="0.5"/><circle cx="26" cy="26" r="16" fill="none" stroke="#262630" stroke-width="0.5"/><circle cx="26" cy="26" r="13" fill="none" stroke="#282832" stroke-width="0.5"/><circle cx="26" cy="26" r="8" fill="#1c1c26" stroke="#2e2e38" stroke-width="0.6"/><circle cx="26" cy="26" r="5" fill="#c8963e" opacity="0.7"/><circle cx="26" cy="26" r="2.5" fill="#0a0a10"/><ellipse cx="20" cy="18" rx="8" ry="5" fill="rgba(255,255,255,0.04)" transform="rotate(-30 20 18)"/><line x1="46" y1="10" x2="34" y2="22" stroke="#3a3a48" stroke-width="1" stroke-linecap="round"/><circle cx="34" cy="22" r="1.2" fill="#4a4a58"/></svg>
+    <span class="music-label">Audio</span>
+  </div>
+  <div id="escButton" title="Return (ESC)">
+    <svg class="esc-btn disabled" width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="25" fill="#181820" stroke="#3a3a48" stroke-width="1.2"/><text x="26" y="31" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="11" font-family="Syne" font-weight="700" letter-spacing="1">ESC</text></svg>
+  </div>
+</div>
+
+<!-- ═══ SUBPAGE 1 — Persona ═══ -->
+<div class="subpage-overlay" id="subpageOverlay">
+  <div class="bg-base"></div><div class="bg-polkadot"></div><div class="bg-polkadot-large"></div><div class="bg-halftone"></div><div class="bg-action-lines"></div>
+  <div class="corner-deco tr"><div class="corner-angle br-shape"></div></div>
+  <div class="corner-deco br"><div class="corner-angle br-shape"></div></div>
+  <div class="drip-container"><div class="drip"></div><div class="drip"></div><div class="drip"></div></div>
+  <main class="page-grid"><article class="content-col"><div class="content-wrapper">
+    <section class="hero-block">
+      <div class="calling-card-label"><span class="p5-diamond gold" style="animation-delay:0.3s"></span>CALLING CARD<span class="p5-diamond gold" style="animation-delay:0.3s"></span></div>
+      <h1 class="hero-name"><span class="name-highlight">S</span>mart Senpai</h1>
+      <p class="hero-subtitle">· Take Your Heart ·</p><div class="hero-slash"></div>
+    </section>
+    <section class="anim-section" data-delay="200"><div class="comic-panel intro-panel">
+      <div class="panel-tag"><span class="p5-diamond small" style="animation-delay:0.6s"></span>PANEL 01 · MY STORY</div>
+      <p>Hey — I'm <strong>Smart Senpai</strong>, a <span class="speech-accent">STAND MASTER</span> and <span class="halftone-highlight">Engineering student</span> who believes every single formula should steal your heart.</p>
+      <p>Smart Senpai sukisukidaisuki. My calling card reads: <span class="speech-accent">Take Your Heart</span>.</p>
+    </div></section>
+    <section class="anim-section" data-delay="350" style="margin-top:2.5rem"><h2 class="section-header">The Arsenal<span class="count">RANK ★★★★☆</span></h2>
+      <div class="traits-grid">
+        <div class="trait-card"><span class="trait-icon">🎨</span><h3>UI Design</h3><p>Pop art meets modern minimalism. Bold palettes, thick borders, halftone accents.</p></div>
+        <div class="trait-card"><span class="trait-icon">⚡</span><h3>Frontend Dev</h3><p>Pixel-perfect builds with React, Vue, and vanilla magic. Animations that dance.</p></div>
+        <div class="trait-card"><span class="trait-icon">📸</span><h3>Visual Storytelling</h3><p>Photography and graphic design collide. Every frame is a comic panel.</p></div>
+        <div class="trait-card"><span class="trait-icon">🎵</span><h3>Sound & Motion</h3><p>Interactive animations and sound design that elevate the mundane to the memorable.</p></div>
+      </div>
+    </section>
+    <section class="anim-section" data-delay="500" style="margin-top:2.5rem"><h2 class="section-header">Current Heist<span class="count">IN PROGRESS</span></h2>
+      <div class="comic-panel"><div class="confidant-rank"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div></div>
+        <p style="line-height:1.85;margin-bottom:0.8rem">I'm deep in a phase of <em>wild growth</em> — exploring new frontiers in interface design and creative coding.</p>
+        <p style="line-height:1.85;margin-bottom:0.8rem">Currently obsessed with: <span class="halftone-highlight">bold maximalist aesthetics</span>, motion-driven storytelling.</p>
+        <p style="line-height:1.85">The mission: <span class="speech-accent">Stay Agile</span> and <span class="speech-accent">Build Beautifully</span>.</p>
+      </div>
+    </section>
+    <section class="anim-section" style="margin-top:6rem"><h2 class="section-header">Send a Calling Card<span class="count">CHANNELS OPEN</span></h2>
+      <div class="comic-panel"><p style="margin-bottom:1rem;opacity:0.8">Got a palace that needs infiltrating? Let's form a party.</p>
+        <ul class="contact-list">
+          <li><a href="mailto:kaito@phantom.ui">✉ Email<span class="arrow">→</span></a></li>
+          <li><a href="https://github.com" target="_blank" rel="noopener">⎔ GitHub<span class="arrow">→</span></a></li>
+          <li><a href="#" target="_blank" rel="noopener">◈ Portfolio<span class="arrow">→</span></a></li>
+        </ul>
+      </div>
+    </section>
+    <div class="bottom-spacer"></div>
+    <footer class="site-footer"><span>© 2026 Kaito · Phantom Thief of UI</span><span>CC BY-NC-SA 4.0</span><span style="font-family:var(--font-display);letter-spacing:0.1em">◆ TAKE YOUR HEART ◆</span></footer>
+  </div></article></main>
+</div>
+
+<!-- ═══ SUBPAGE 2 — Archive (Klein Blue) ═══ -->
+<div class="subpage2-overlay" id="subpage2Overlay">
+  <div class="bg-base"></div><div class="bg-polkadot"></div><div class="bg-polkadot-large"></div><div class="bg-halftone"></div><div class="bg-action-lines"></div>
+  <div class="corner-deco tl"><div class="corner-angle tl-shape"></div></div>
+  <div class="corner-deco tr"><div class="corner-angle tr-shape"></div></div>
+  <div class="corner-deco bl"><div class="corner-angle bl-shape"></div></div>
+  <div class="corner-deco br"><div class="corner-angle br-shape"></div></div>
+  <div class="drip-container"><div class="drip"></div><div class="drip"></div><div class="drip"></div></div>
+  <div class="app-layout" id="appLayout2">
+    <div class="layout-spacer" id="layoutSpacer2"></div>
+    <div class="article-panel" id="articlePanel2">
+      <header class="archive-header">
+        <div class="archive-label"><span class="p5-diamond gold" style="animation-delay:0.3s"></span>PHANTOM ARCHIVE<span class="p5-diamond gold" style="animation-delay:0.3s"></span></div>
+        <h1 class="archive-title"><span class="title-accent">先</span>輩文庫</h1>
+        <p class="archive-subtitle">· Take Your Wisdom ·</p><div class="header-slash"></div>
+      </header>
+      <nav class="article-list" id="articleList2"></nav>
+      <footer class="list-footer"><span>◆ MISSION SELECT ◆</span><span id="articleCount2"></span></footer>
+    </div>
+    <div class="layout-spacer-right" id="layoutSpacerRight2"></div>
+    <div class="reader-panel" id="readerPanel2">
+      <div class="reader-inner">
+        <button class="reader-back" id="readerBack2"><span>✕</span></button>
+        <div class="reader-header" id="readerHeader2" style="display:none"><div class="rh-meta"><span class="rh-date" id="rhDate2"></span><span class="rh-tag" id="rhTag2"></span></div><h2 class="rh-title" id="rhTitle2"></h2></div>
+        <div class="md-content" id="mdContent2"><div class="reader-empty"><div class="empty-diamond"></div><p class="empty-text">Select a mission<br>to begin reading</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="api-status"><span class="status-dot"></span><span>PORT :3000 · STANDBY</span></div>
+</div>
+
+<!-- ═══ SUBPAGE 3 — Verdant Codex (Green) ═══ -->
+<div class="subpage3-overlay" id="subpage3Overlay">
+  <div class="bg-base"></div><div class="bg-polkadot"></div><div class="bg-polkadot-large"></div><div class="bg-halftone"></div><div class="bg-action-lines"></div>
+  <div class="corner-deco tl"><div class="corner-angle tl-shape"></div></div>
+  <div class="corner-deco tr"><div class="corner-angle tr-shape"></div></div>
+  <div class="corner-deco bl"><div class="corner-angle bl-shape"></div></div>
+  <div class="corner-deco br"><div class="corner-angle br-shape"></div></div>
+  <div class="drip-container"><div class="drip"></div><div class="drip"></div><div class="drip"></div><div class="drip"></div></div>
+  <div class="app-layout" id="appLayout3">
+    <div class="layout-spacer" id="layoutSpacer3"></div>
+    <div class="article-panel" id="articlePanel3">
+      <header class="archive-header">
+        <div class="archive-label"><span class="p5-diamond gold" style="animation-delay:0.3s"></span>nidongdeziyuan-_-<span class="p5-diamond gold" style="animation-delay:0.3s"></span></div>
+        <h1 class="archive-title"><span class="title-accent">後</span>輩寶庫</h1>
+        <p class="archive-subtitle">· Take Your Wealth ·</p><div class="header-slash"></div>
+      </header>
+      <nav class="article-list" id="articleList3"></nav>
+      <footer class="list-footer"><span>◆ CODEX SELECT ◆</span><span id="articleCount3"></span></footer>
+    </div>
+    <div class="layout-spacer-right" id="layoutSpacerRight3"></div>
+    <div class="reader-panel" id="readerPanel3">
+      <div class="reader-inner" id="readerInner3">
+        <button class="reader-back" id="readerBack3"><span>✕</span></button>
+        <div class="reader-header" id="readerHeader3" style="display:none"><div class="rh-meta"><span class="rh-date" id="rhDate3"></span><span class="rh-tag" id="rhTag3"></span></div><h2 class="rh-title" id="rhTitle3"></h2></div>
+        <div class="md-content" id="mdContent3"><div class="reader-empty"><div class="empty-diamond"></div><p class="empty-text">Select a codex entry<br>to begin reading</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="api-status"><span class="status-dot"></span><span>CODEX · STANDBY</span></div>
+</div>
+
+<!-- ═══ SUBPAGE 4 — Rebel Gallery (Yellow) ═══ -->
+<div class="subpage4-overlay" id="subpage4Overlay">
+  <div class="bg-base"></div><div class="bg-polkadot"></div><div class="bg-polkadot-large"></div><div class="bg-halftone"></div><div class="bg-action-lines"></div>
+  <div class="corner-deco tl"><div class="corner-angle tl-shape"></div></div>
+  <div class="corner-deco tr"><div class="corner-angle tr-shape"></div></div>
+  <div class="corner-deco bl"><div class="corner-angle bl-shape"></div></div>
+  <div class="corner-deco br"><div class="corner-angle br-shape"></div></div>
+  <div class="drip-container"><div class="drip"></div><div class="drip"></div><div class="drip"></div></div>
+  <div class="app-container">
+    <header class="gallery-header">
+      <div class="gallery-label"><span class="p5-diamond gold" style="animation-delay:0.3s"></span>VIRTUAL GALLERY<span class="p5-diamond gold" style="animation-delay:0.3s"></span></div>
+      <h1 class="gallery-title"><span class="title-accent">真</span>實的走廊</h1>
+      <p class="gallery-subtitle">· Take Your Vision ·</p><div class="header-slash"></div>
+    </header>
+    <div class="gallery-grid" id="galleryGrid4"></div>
+    <footer class="gallery-footer"><span>◆ FRAME SELECT ◆</span><span id="frameCount4"></span></footer>
+  </div>
+  <div class="lightbox-overlay" id="lightboxOverlay4">
+    <div class="lightbox-stage" id="lightboxStage4">
+      <div class="lightbox-film-card" id="lightboxFilmCard4">
+        <div class="film-outer">
+          <div class="lightbox-film-strip">
+            <div class="film-edge"><div class="sprocket-holes"></div></div>
+            <div class="film-image-area"><img src="" alt="" id="lightboxImg4"><div class="film-glare" id="filmGlare4"></div></div>
+            <div class="film-edge"><div class="sprocket-holes"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lightbox-caption" id="lightboxCaption4"><span class="lc-diamond"></span><span class="lc-title" id="lcTitle4"></span><span class="lc-diamond"></span><div class="lc-sub" id="lcSub4"></div></div>
+  </div>
+  <button class="lightbox-close" id="lightboxClose4" aria-label="Close gallery"><span>✕</span></button>
+  <div class="api-status"><span class="status-dot"></span><span>GALLERY · STANDBY</span></div>
+</div>
+
+<!-- ═══ CURTAIN CANVAS (branch3 — green velvet) ═══ -->
+<canvas id="curtainCanvas"></canvas>
+<div class="curtain-loading" id="curtainLoading">
+  <div class="load-star"></div>
+  <div class="load-text">TAKE YOUR HEART</div>
+  <div class="load-sub">Stealing your destination&hellip;</div>
+  <div class="load-dots"><div class="load-dot"></div><div class="load-dot"></div><div class="load-dot"></div></div>
+</div>
+
+<!-- ═══ DIAGONAL TRANSITION OVERLAY (branch4 — yellow water) ═══ -->
+<div id="diagOverlay">
+  <svg id="diagSvg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+    <defs>
+      <filter id="diagWaveFilter" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <feTurbulence id="diagTurbulence" type="fractalNoise" baseFrequency="0.018 0.022" numOctaves="2" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="20" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <mask id="diagRevealMask">
+        <rect x="-1000" y="-1000" width="10000" height="10000" fill="white"/>
+        <circle id="diagRevealCircle" cx="0" cy="0" r="0" fill="black" filter="url(#diagWaveFilter)"/>
+      </mask>
+    </defs>
+    <circle id="diagWaterCircle" cx="0" cy="0" r="0" fill="#f3a90b" filter="url(#diagWaveFilter)"/>
+    <circle id="diagWaterCircleRev" cx="0" cy="0" r="0" fill="#f3a90b" mask="url(#diagRevealMask)" opacity="0"/>
+  </svg>
+</div>
+
+<!-- ═══ APP WRAPPER — Orbital ═══ -->
+<div class="app-wrapper" id="appWrapper">
+  <div class="buttons-layer" id="buttonsLayer"></div>
+  <video class="top-video" src="../top.webm" autoplay loop muted playsinline aria-hidden="true"></video>
+  <div class="scroll-hint" id="scrollHint" aria-hidden="true">
+    <svg width="320" height="320" viewBox="0 0 320 320"><circle cx="160" cy="160" r="130" class="hint-ring" opacity="0.18"/><path d="M265 55A130 130 0 0 1 55 265" class="hint-ring" opacity="0.9" stroke-dasharray="380 500" stroke-dashoffset="20"/><polygon points="48,272 62,258 60,275" class="hint-arrow"/><path d="M55 265A130 130 0 0 0 265 55" class="hint-ring" opacity="0.18" stroke-dasharray="100 600" stroke-dashoffset="0"/><text x="160" y="168" class="hint-text">SCROLL</text></svg>
+  </div>
+  <audio id="bgMusic" loop preload="auto"><source src="../BLU-SWING - Fabulous.mp3" type="audio/mpeg"></audio>
+  <div class="angle-display" id="angleDisplay">000°</div>
+</div>
+
+
+<script src="js/app.js"></script>
+</body>
+</html>

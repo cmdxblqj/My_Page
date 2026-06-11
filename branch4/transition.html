@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>对角线碰撞 · 水面过渡</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ============================================================
+   CUSTOM PROPERTIES
+   ============================================================ */
+:root {
+  --color-bg:        #0b0b0c;
+  --color-bg-alt:    #141416;
+  --color-surface:   #1c1c1f;
+  --color-border:    #2a2a30;
+  --color-water:     #f3a90b;
+  --color-text:      #e0ddd6;
+  --color-text-dim:  #6b6a65;
+  --font-display:    'Courier New', 'Noto Sans SC', monospace;
+  --font-body:       'Courier New', 'Noto Sans SC', monospace;
+  --ease-out-expo:   cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none; opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ============================================================
+   PAGE LAYERS
+   ============================================================ */
+.page {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.3s ease;
+}
+.page--hidden { opacity: 0; pointer-events: none; }
+
+.page--first  { background: var(--color-bg);     z-index: 1; }
+.page--second { background: var(--color-bg-alt); z-index: 0; }
+
+.page__number {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 8vw, 7rem); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1; opacity: 0.9;
+}
+.page__label {
+  font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.25em; color: var(--color-text-dim); margin-top: 0.5rem;
+}
+.page__accent-line {
+  width: 1px; height: 80px; margin: 2rem 0; opacity: 0.6;
+  background: linear-gradient(to bottom, transparent, var(--color-water), transparent);
+}
+.page__hint {
+  position: absolute; bottom: 2.5rem;
+  font-size: 0.7rem; letter-spacing: 0.2em;
+  color: var(--color-text-dim); text-transform: uppercase;
+}
+.page__hint .blink {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-water); margin-left: 8px;
+  animation: blink-pulse 1.6s ease-in-out infinite;
+}
+@keyframes blink-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.3); }
+}
+
+.page__badge {
+  display: inline-block; padding: 0.3em 1em;
+  border: 1px solid var(--color-water); color: var(--color-water);
+  font-size: 0.65rem; letter-spacing: 0.28em;
+  text-transform: uppercase; margin-bottom: 2rem;
+}
+.page__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem); font-weight: 700;
+  letter-spacing: -0.02em; text-align: center; max-width: 600px; line-height: 1.2;
+}
+.page__grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; margin-top: 3rem; background: var(--color-border);
+}
+.page__grid-cell {
+  width: 80px; height: 80px; background: var(--color-surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; color: var(--color-text-dim); letter-spacing: 0.15em;
+  transition: background 0.3s, color 0.3s;
+}
+.page__grid-cell:hover { background: var(--color-water); color: var(--color-bg); }
+
+/* ============================================================
+   TRANSITION OVERLAY
+   ============================================================ */
+.transition {
+  position: fixed; inset: 0; z-index: 100;
+  pointer-events: none;
+}
+.transition--active { pointer-events: auto; }
+
+/*
+   图层体系:
+   - 水面 SVG: z-index 2  (底层, 被图片遮挡)
+   - 图片:      z-index 10 (中层, 漂浮在水面之上)
+   - 加载指示器: z-index 20 (顶层)
+*/
+
+/* 图片 — 全视口尺寸，在水面之上 */
+.transition__img {
+  position: absolute; top: 50%; left: 50%;
+  width: 100vw; height: 100vh; object-fit: fill;
+  will-change: transform; backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: 0; z-index: 10;
+}
+
+/* 水面 SVG — 在图片之下 */
+.transition__water-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 2;
+}
+
+/* 加载指示器 */
+.transition__loader {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); z-index: 20;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 1rem; opacity: 0;
+}
+.transition__loader-dots { display: flex; gap: 8px; }
+.transition__loader-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-bg); opacity: 0.5;
+}
+.transition__loader-text {
+  font-size: 0.6rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   CONTROLS
+   ============================================================ */
+.controls {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%); z-index: 200;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;
+}
+.controls__btn {
+  padding: 0.7rem 1.8rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface); color: var(--color-text);
+  font-family: var(--font-body); font-size: 0.7rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.25s ease;
+  position: relative; overflow: hidden;
+}
+.controls__btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--color-water); transform: scaleX(0);
+  transform-origin: left; transition: transform 0.4s var(--ease-out-expo); z-index: -1;
+}
+.controls__btn:hover::before { transform: scaleX(1); }
+.controls__btn:hover { color: var(--color-bg); border-color: var(--color-water); }
+.controls__btn--load { opacity: 0.4; pointer-events: none; }
+.controls__btn--load.controls__btn--enabled { opacity: 1; pointer-events: auto; }
+.controls__hint {
+  width: 100%; font-size: 0.6rem; letter-spacing: 0.12em;
+  color: var(--color-text-dim); opacity: 0.5; text-align: center; margin-top: 0.6rem;
+}
+.controls__hint kbd {
+  display: inline-block; padding: 0.15em 0.5em;
+  border: 1px solid var(--color-border); border-radius: 3px;
+  font-family: var(--font-body); font-size: 0.6rem;
+  color: var(--color-text-dim); background: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition__img { transition: opacity 0.5s ease !important; }
+  .transition__water-svg { transition: opacity 0.5s ease !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<main id="page1" class="page page--first">
+  <span class="page__number">01</span>
+  <span class="page__label">Departure Point</span>
+  <div class="page__accent-line"></div>
+  <p class="page__hint">就绪<span class="blink"></span></p>
+</main>
+
+<!-- PAGE 2 -->
+<main id="page2" class="page page--second page--hidden">
+  <span class="page__badge">Destination</span>
+  <p class="page__title">新世界已加载。<br>一切就绪。</p>
+  <div class="page__grid">
+    <div class="page__grid-cell">A1</div><div class="page__grid-cell">B1</div><div class="page__grid-cell">C1</div>
+    <div class="page__grid-cell">A2</div><div class="page__grid-cell">B2</div><div class="page__grid-cell">C2</div>
+    <div class="page__grid-cell">A3</div><div class="page__grid-cell">B3</div><div class="page__grid-cell">C3</div>
+  </div>
+</main>
+
+<!-- TRANSITION OVERLAY -->
+<div id="transition" class="transition" aria-hidden="true" style="display:none;">
+
+  <!-- 水面 SVG — 图片之下 (z-index:2) -->
+  <svg
+    id="trans-water-svg"
+    class="transition__water-svg"
+    viewBox="0 0 1920 1080"
+    preserveAspectRatio="none"
+  >
+    <defs>
+      <!--
+        圆润水面波动滤镜
+        低频率 + 少八度 + 适中位移 → 平滑大波浪，无杂乱细节
+      -->
+      <filter
+        id="wave-filter"
+        x="-20%"
+        y="-20%"
+        width="140%"
+        height="140%"
+        color-interpolation-filters="sRGB"
+      >
+        <feTurbulence
+          id="wave-turbulence"
+          type="fractalNoise"
+          baseFrequency="0.018 0.022"
+          numOctaves="2"
+          seed="7"
+          result="noise"
+        />
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="noise"
+          scale="20"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+
+      <!-- 阶段四：圆形透明窗口掩膜 -->
+      <mask id="reveal-mask">
+        <rect x="-1000" y="-1000" width="10000" height="10000" fill="white" />
+        <circle
+          id="reveal-circle"
+          cx="0"
+          cy="0"
+          r="0"
+          fill="black"
+          filter="url(#wave-filter)"
+        />
+      </mask>
+    </defs>
+
+    <!-- 阶段1-3: 圆形水面，从左上角(0,0)圆心向外扩散 -->
+    <circle
+      id="water-circle"
+      cx="0"
+      cy="0"
+      r="0"
+      fill="#f3a90b"
+      filter="url(#wave-filter)"
+    />
+
+    <!-- 阶段4: 全屏水面 + 圆形透明窗口遮罩 -->
+    <circle
+      id="water-circle-reverse"
+      cx="0"
+      cy="0"
+      r="0"
+      fill="#f3a90b"
+      mask="url(#reveal-mask)"
+      opacity="0"
+    />
+  </svg>
+
+  <!-- 图片 — 水面之上 (z-index:10) -->
+  <img id="trans-img-1" class="transition__img transition__img--first"
+       src="first.png" alt="" draggable="false" />
+  <img id="trans-img-2" class="transition__img transition__img--second"
+       src="second.png" alt="" draggable="false" />
+
+  <!-- 加载指示器 -->
+  <div id="trans-loader" class="transition__loader">
+    <div class="transition__loader-dots">
+      <span class="transition__loader-dot" id="ldot1"></span>
+      <span class="transition__loader-dot" id="ldot2"></span>
+      <span class="transition__loader-dot" id="ldot3"></span>
+    </div>
+    <span class="transition__loader-text">Loading</span>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls" id="controls">
+  <button class="controls__btn" id="btn-start" onclick="startTransition()">触发过渡</button>
+  <button class="controls__btn controls__btn--load" id="btn-load" onclick="simulateLoadComplete()">加载完成</button>
+  <p class="controls__hint">
+    <kbd>Enter</kbd> 开始 &nbsp; <kbd>Space</kbd> 加载完成 &nbsp; <kbd>Ctrl+R</kbd> 重置
+  </p>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── DOM ──────────────────────────────────────────────
+  const page1        = document.getElementById('page1');
+  const page2        = document.getElementById('page2');
+  const transition   = document.getElementById('transition');
+  const imgFirst     = document.getElementById('trans-img-1');
+  const imgSecond    = document.getElementById('trans-img-2');
+  const waterCircle  = document.getElementById('water-circle');
+  const waterCircleRev = document.getElementById('water-circle-reverse');
+  const revealCircle = document.getElementById('reveal-circle');
+  const loader       = document.getElementById('trans-loader');
+  const btnLoad      = document.getElementById('btn-load');
+  const turbulence   = document.getElementById('wave-turbulence');
+
+  // ── 视口 ────────────────────────────────────────────
+  function getViewport() {
+    return {
+      w: window.innerWidth,
+      h: window.innerHeight,
+      cx: window.innerWidth / 2,
+      cy: window.innerHeight / 2
+    };
+  }
+
+  // ── 坐标计算 ────────────────────────────────────────
+  function computeStartPositions(vp) {
+    const D   = Math.max(vp.w, vp.h) * 1.3;
+    const mag = Math.sqrt(337);
+    return {
+      first:  { x: vp.cx - (9/mag)*D,  y: vp.cy + (16/mag)*D },
+      second: { x: vp.cx + (9/mag)*D,  y: vp.cy - (16/mag)*D },
+      D, mag
+    };
+  }
+
+  // ── 圆形水面最大半径 ────────────────────────────────
+  function maxRadius(vp) {
+    // 从(0,0)到(vp.w, vp.h)的对角线距离，确保圆形覆盖整个视口
+    return Math.sqrt(vp.w * vp.w + vp.h * vp.h);
+  }
+
+  // ── 状态 ────────────────────────────────────────────
+  let mainTL          = null;
+  let holdPaused      = false;
+  let isTransitioning = false;
+  let loadComplete    = false;
+  let holdTimeout     = null;
+
+  // ── SVG viewBox ─────────────────────────────────────
+  function updateSVGViewBox(vp) {
+    const svg = document.getElementById('trans-water-svg');
+    svg.setAttribute('viewBox', `0 0 ${vp.w} ${vp.h}`);
+    // 阶段四的反向圆也需要设置正确尺寸
+    const R = maxRadius(vp);
+    gsap.set(waterCircleRev, { attr: { r: R } });
+  }
+
+  // ── 图片定位 ────────────────────────────────────────
+  function positionImages(vp, startPos) {
+    const o1x = startPos.first.x  - vp.cx;
+    const o1y = startPos.first.y  - vp.cy;
+    const o2x = startPos.second.x - vp.cx;
+    const o2y = startPos.second.y - vp.cy;
+
+    gsap.set(imgFirst,  { xPercent:-50, yPercent:-50, x:o1x, y:o1y, opacity:1, transformOrigin:'center center' });
+    gsap.set(imgSecond, { xPercent:-50, yPercent:-50, x:o2x, y:o2y, opacity:1, transformOrigin:'center center' });
+  }
+
+  // ── 加载指示器 ──────────────────────────────────────
+  let loaderBreathTL = null;
+  function startLoaderBreath() {
+    loaderBreathTL = gsap.timeline({ repeat:-1, yoyo:true });
+    loaderBreathTL
+      .to('#ldot1', { opacity:1, scale:1.4, duration:0.4, ease:'power2.out' }, 0)
+      .to('#ldot2', { opacity:1, scale:1.4, duration:0.4, ease:'power2.out' }, 0.15)
+      .to('#ldot3', { opacity:1, scale:1.4, duration:0.4, ease:'power2.out' }, 0.3)
+      .to('#ldot1', { opacity:0.4, scale:1, duration:0.4, ease:'power2.in' }, 0.4)
+      .to('#ldot2', { opacity:0.4, scale:1, duration:0.4, ease:'power2.in' }, 0.55)
+      .to('#ldot3', { opacity:0.4, scale:1, duration:0.4, ease:'power2.in' }, 0.7);
+  }
+  function stopLoaderBreath() { if (loaderBreathTL) { loaderBreathTL.kill(); loaderBreathTL = null; } }
+
+  // ── 水面呼吸感 ──────────────────────────────────────
+  let waterBreathTL = null;
+  function startWaterBreath() {
+    waterBreathTL = gsap.timeline({ repeat:-1, yoyo:true });
+    waterBreathTL
+      .to(turbulence, { attr:{ baseFrequency:'0.014 0.018' }, duration:1.8, ease:'sine.inOut' })
+      .to(turbulence, { attr:{ baseFrequency:'0.022 0.026' }, duration:2.2, ease:'sine.inOut' });
+  }
+  function stopWaterBreath() {
+    if (waterBreathTL) { waterBreathTL.kill(); waterBreathTL = null; }
+    gsap.set(turbulence, { attr:{ baseFrequency:'0.018 0.022' } });
+  }
+
+  // ── 碰撞轻震动 ──────────────────────────────────────
+  function buildCollisionShake(tl, img) {
+    tl.to(img, { scale:0.97, duration:0.03, ease:'power3.in'  }, 0.90)
+      .to(img, { scale:1.02, duration:0.04, ease:'power3.out' }, 0.93)
+      .to(img, { scale:0.99, duration:0.03, ease:'power2.out' }, 0.96)
+      .to(img, { scale:1.0,  duration:0.015, ease:'power2.in' }, 0.985);
+  }
+
+  // ── 主时间轴 ────────────────────────────────────────
+  function buildTransitionTimeline() {
+    const vp = getViewport();
+    const startPos = computeStartPositions(vp);
+    const R = maxRadius(vp);
+
+    updateSVGViewBox(vp);
+    positionImages(vp, startPos);
+
+    const o1x = startPos.first.x  - vp.cx;
+    const o1y = startPos.first.y  - vp.cy;
+    const o2x = startPos.second.x - vp.cx;
+    const o2y = startPos.second.y - vp.cy;
+
+    // 清除旧状态
+    if (mainTL) { mainTL.kill(); mainTL = null; }
+    stopWaterBreath();
+    stopLoaderBreath();
+
+    // 显示过渡层
+    transition.style.display = '';
+
+    // 重置所有元素到初始状态
+    gsap.set(waterCircle,    { attr:{ r:0 }, opacity:1 });
+    gsap.set(waterCircleRev, { attr:{ r:R }, opacity:0 });
+    gsap.set(revealCircle,   { attr:{ r:0 } });
+    gsap.set(loader,         { opacity:0 });
+    gsap.set(turbulence,     { attr:{ baseFrequency:'0.018 0.022' } });
+
+    loadComplete = false;
+    holdPaused   = false;
+    btnLoad.classList.remove('controls__btn--enabled');
+
+    const tl = gsap.timeline({
+      paused: true,
+      onStart: () => {
+        transition.setAttribute('aria-hidden', 'false');
+        transition.classList.add('transition--active');
+      },
+      onComplete: () => {
+        // 动画完全结束后隐藏整个过渡层 — 防止SVG二次启动
+        transition.style.display = 'none';
+        transition.setAttribute('aria-hidden', 'true');
+        transition.classList.remove('transition--active');
+        stopWaterBreath();
+        stopLoaderBreath();
+        isTransitioning = false;
+      }
+    });
+
+    // ════════════════════════════════════════════════
+    // 阶段一: 进入与生长 (0.0s - 0.9s)
+    // ════════════════════════════════════════════════
+
+    // 图片沿垂直对角线方向入场 (ease-out: 减速到达)
+    tl.to(imgFirst,  { x:0, y:0, duration:0.9, ease:'power3.out' }, 0);
+    tl.to(imgSecond, { x:0, y:0, duration:0.9, ease:'power3.out' }, 0);
+
+    // 圆形水面: 从左上角(0,0)以圆形向外扩散，半径从0增长至覆盖全视口
+    tl.to(waterCircle, {
+      attr: { r: R },
+      duration: 1.0,
+      ease: 'none',
+    }, 0);
+
+    // ════════════════════════════════════════════════
+    // 阶段二: 中心碰撞 (0.9s - 1.0s)
+    // ════════════════════════════════════════════════
+    buildCollisionShake(tl, imgFirst);
+    buildCollisionShake(tl, imgSecond);
+
+    // ════════════════════════════════════════════════
+    // 阶段三: 1.0s暂停 — 加载等待
+    // ════════════════════════════════════════════════
+    tl.addLabel('holdStart', 1.0);
+
+    tl.call(() => {
+      gsap.to(loader, { opacity:1, duration:0.25, ease:'power2.out' });
+      startLoaderBreath();
+      startWaterBreath();
+      holdPaused = true;
+      btnLoad.classList.add('controls__btn--enabled');
+
+      holdTimeout = setTimeout(() => {
+        if (holdPaused && !loadComplete) {
+          console.warn('[Transition] 加载超时 (5s)，强制完成');
+          simulateLoadComplete();
+        }
+      }, 5000);
+    }, null, 1.0);
+
+    // ════════════════════════════════════════════════
+    // 阶段四: 分离与消退 (加载完成后，耗时1.0s)
+    // ════════════════════════════════════════════════
+
+    // 图片原路返回 (ease-in: 加速离开)
+    tl.to(imgFirst,  { x:o1x, y:o1y, duration:1.0, ease:'power3.in' }, 'holdStart');
+    tl.to(imgSecond, { x:o2x, y:o2y, duration:1.0, ease:'power3.in' }, 'holdStart');
+
+    // 切换到反向水面模式
+    tl.call(() => {
+      gsap.set(waterCircle,    { opacity:0 });
+      gsap.set(waterCircleRev, { opacity:1, attr:{ r:R } });
+      stopWaterBreath();
+      gsap.set(turbulence, { attr:{ baseFrequency:'0.018 0.022' } });
+    }, null, 'holdStart');
+
+    // 圆形透明窗口从左上角向外扩散 (mask中的黑色圆)
+    tl.to(revealCircle, {
+      attr: { r: R },
+      duration: 1.0,
+      ease: 'power2.out',
+    }, 'holdStart');
+
+    // 加载指示器淡出
+    tl.to(loader, { opacity:0, duration:0.3, ease:'power2.in' }, 'holdStart');
+
+    // ════════════════════════════════════════════════
+    // 阶段四结束: 干净清理，不触发任何视觉残留
+    // ════════════════════════════════════════════════
+    tl.call(() => {
+      stopLoaderBreath();
+      stopWaterBreath();
+      // 只隐藏整个过渡容器，不逐个重置元素 (避免SVG二次渲染)
+      transition.style.display = 'none';
+      transition.setAttribute('aria-hidden', 'true');
+      transition.classList.remove('transition--active');
+      isTransitioning = false;
+      // 重置关键状态供下次使用
+      gsap.set(waterCircle,    { attr:{ r:0 }, opacity:1 });
+      gsap.set(waterCircleRev, { opacity:0 });
+      gsap.set(revealCircle,   { attr:{ r:0 } });
+      gsap.set([imgFirst, imgSecond], { opacity:0 });
+      gsap.set(loader, { opacity:0 });
+    }, null, 'holdStart+=1.0');
+
+    mainTL = tl;
+    return tl;
+  }
+
+  // ── 启动过渡 ────────────────────────────────────────
+  window.startTransition = function() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      performSimpleFade();
+      return;
+    }
+
+    const tl = buildTransitionTimeline();
+
+    // 水面1.0s完全覆盖，在0.98s(≈98%)切换底层页面
+    tl.call(() => {
+      page1.classList.add('page--hidden');
+      page2.classList.remove('page--hidden');
+    }, null, 0.98);
+
+    tl.play();
+  };
+
+  // ── 模拟加载完成 ────────────────────────────────────
+  window.simulateLoadComplete = function() {
+    if (!holdPaused || loadComplete) return;
+    loadComplete = true;
+
+    if (holdTimeout) { clearTimeout(holdTimeout); holdTimeout = null; }
+
+    btnLoad.classList.remove('controls__btn--enabled');
+    holdPaused = false;
+    stopWaterBreath();
+
+    gsap.to(loader, {
+      opacity:0, duration:0.25, ease:'power2.in',
+      onComplete: () => {
+        stopLoaderBreath();
+        if (mainTL) {
+          gsap.set(turbulence, { attr:{ baseFrequency:'0.018 0.022' } });
+          mainTL.play('holdStart');
+        }
+      }
+    });
+  };
+
+  // ── 降级淡入淡出 ────────────────────────────────────
+  function performSimpleFade() {
+    const tl = gsap.timeline();
+    tl.to(page1, { opacity:0, duration:0.35, ease:'power2.out' });
+    tl.set(waterCircle, { attr:{ r: maxRadius(getViewport()) }, opacity:1 }, 0.35);
+    tl.to({}, { duration:0.15 });
+    tl.call(() => { page1.classList.add('page--hidden'); page2.classList.remove('page--hidden'); });
+    tl.to(waterCircle, { opacity:0, duration:0.35, ease:'power2.in' }, '-=0.05');
+    tl.play().then(() => {
+      gsap.set(waterCircle, { attr:{ r:0 } });
+      isTransitioning = false;
+    });
+  }
+
+  // ── 窗口resize ──────────────────────────────────────
+  let resizeDebounce;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeDebounce);
+    resizeDebounce = setTimeout(() => {
+      if (isTransitioning) return;
+      const vp = getViewport();
+      updateSVGViewBox(vp);
+      positionImages(vp, computeStartPositions(vp));
+    }, 250);
+  });
+
+  // ── 键盘 ────────────────────────────────────────────
+  window.addEventListener('keydown', (e) => {
+    switch(e.key.toLowerCase()) {
+      case 'enter':
+        if (!isTransitioning) startTransition();
+        break;
+      case ' ':
+        e.preventDefault();
+        if (holdPaused && !loadComplete) simulateLoadComplete();
+        break;
+      case 'r':
+        if (e.ctrlKey || e.metaKey) location.reload();
+        break;
+    }
+  });
+
+  // ── 初始化 ──────────────────────────────────────────
+  function init() {
+    const vp = getViewport();
+    updateSVGViewBox(vp);
+    positionImages(vp, computeStartPositions(vp));
+
+    [imgFirst, imgSecond].forEach(img => {
+      if (img.complete && img.naturalWidth > 0) return;
+      img.addEventListener('load', () => {
+        positionImages(getViewport(), computeStartPositions(getViewport()));
+      }, { once:true });
+    });
+
+    console.log(
+      '%c⚡ 对角线碰撞 · 圆形水面过渡 %c就绪%c\n' +
+      '%c[Enter]%c 触发  %c[Space]%c 加载完成  %c[Ctrl+R]%c 重置',
+      'color:#f3a90b;font-size:1.2em;font-weight:bold;', 'color:#6b6a65;', '',
+      'color:#f3a90b;', 'color:#6b6a65;',
+      'color:#f3a90b;', 'color:#6b6a65;',
+      'color:#f3a90b;', 'color:#6b6a65;'
+    );
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

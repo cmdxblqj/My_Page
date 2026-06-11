@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phantom Archive · 怪盗文庫</title>
+
+  <!-- Fonts: Bebas Neue for P5 headlines + DM Sans body + Fredoka accent + Noto Sans SC CJK -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Fredoka:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════════
+       CSS CUSTOM PROPERTIES — Klein Blue palette
+       ═══════════════════════════════════════════ */
+    :root {
+      /* Deep backgrounds */
+      --bg-deep: #060a16;
+      --bg-card: #040810;
+      --bg-reader: #070b1a;
+
+      /* Klein Blue family — the signature intense ultramarine */
+      --blue-klein: #002FA7;
+      --blue-bright: #0047E0;
+      --blue-neon: #2962ff;
+      --blue-electric: #3b6eff;
+      --blue-royal: #1a3fcf;
+      --blue-crimson: #1030a8;
+      --blue-steel: #1a2b6b;
+      --blue-deep: #10184a;
+
+      /* Sky blue accents */
+      --sky-bright: #5b9eff;
+      --sky-muted: #7baee4;
+      --sky-soft: #b8d4f0;
+
+      /* Gold — contrast accent (stars, diamonds) */
+      --gold: #ffc107;
+      --gold-bright: #ffd54f;
+      --gold-pale: #ffe69c;
+
+      /* Neutrals */
+      --white-soft: #e8ecf4;
+      --white-warm: #f0f2f8;
+      --black-pure: #000000;
+      --black-soft: #0a0c18;
+
+      /* Fonts */
+      --font-display: 'Bebas Neue', 'Noto Sans SC', sans-serif;
+      --font-body: 'DM Sans', 'Noto Sans SC', sans-serif;
+      --font-accent: 'Fredoka', cursive;
+      --font-mono: 'JetBrains Mono', 'Noto Sans SC', monospace;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-deep);
+      color: var(--white-soft);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ═══════════════════════════════════════════
+       BACKGROUND LAYERS
+       ═══════════════════════════════════════════ */
+
+    /* Layer 0: Deep navy-black radial base */
+    .bg-base {
+      position: fixed; inset: 0; z-index: -3;
+      background: radial-gradient(ellipse at 50% 30%, #0d1528 0%, #060a16 60%, #000000 100%);
+    }
+
+    /* Layer 1: Polka dot pattern — pop art classic in blue */
+    .bg-polkadot {
+      position: fixed; inset: 0; z-index: -2; pointer-events: none;
+      --dot-size: 3px;
+      --dot-spacing: 28px;
+      background-image:
+        radial-gradient(circle at center, rgba(0, 71, 224, 0.22) var(--dot-size), transparent var(--dot-size));
+      background-size: var(--dot-spacing) var(--dot-spacing);
+      animation: polkaDrift 30s linear infinite;
+    }
+
+    /* Layer 2: Larger accent dots — varied blue tones */
+    .bg-polkadot-large {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      --dot-size: 6px;
+      --dot-spacing: 90px;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(41, 98, 255, 0.28) var(--dot-size), transparent var(--dot-size)),
+        radial-gradient(circle at 70% 60%, rgba(91, 158, 255, 0.22) var(--dot-size), transparent var(--dot-size)),
+        radial-gradient(circle at 40% 80%, rgba(26, 43, 107, 0.28) var(--dot-size), transparent var(--dot-size));
+      background-size: var(--dot-spacing) var(--dot-spacing), var(--dot-spacing) var(--dot-spacing), var(--dot-spacing) var(--dot-spacing);
+      animation: polkaDriftLarge 45s linear infinite reverse;
+    }
+
+    /* Layer 3: Halftone gradient strips — Ben-Day dots vibe in blue */
+    .bg-halftone {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(41, 98, 255, 0.05) 3px,
+          rgba(41, 98, 255, 0.05) 6px
+        );
+      mask-image: radial-gradient(ellipse at 50% 50%, transparent 30%, black 80%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 50%, transparent 30%, black 80%);
+    }
+
+    /* Layer 4: Action lines at edges */
+    .bg-action-lines {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        conic-gradient(from 45deg at 5% 95%, transparent 0deg, rgba(0, 71, 224, 0.035) 10deg, transparent 20deg, transparent 360deg),
+        conic-gradient(from -135deg at 95% 5%, transparent 0deg, rgba(41, 98, 255, 0.035) 10deg, transparent 20deg, transparent 360deg);
+    }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════ */
+    @keyframes polkaDrift {
+      0%   { background-position: 0 0; }
+      100% { background-position: var(--dot-spacing) var(--dot-spacing); }
+    }
+    @keyframes polkaDriftLarge {
+      0%   { background-position: 0 0, 0 0, 0 0; }
+      100% { background-position: calc(var(--dot-spacing) * 2) var(--dot-spacing), calc(var(--dot-spacing) * -1) calc(var(--dot-spacing) * 2), var(--dot-spacing) calc(var(--dot-spacing) * -1); }
+    }
+
+    @keyframes panelReveal {
+      0%   { opacity: 0; transform: translateY(30px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes diamondSpin {
+      0%   { transform: rotate(0deg) scale(0); opacity: 0; }
+      60%  { transform: rotate(50deg) scale(1.15); opacity: 1; }
+      100% { transform: rotate(45deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes burstPop {
+      0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+      70%  { transform: scale(1.1) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes slashIn {
+      0%   { width: 0; opacity: 0; }
+      100% { width: 100%; opacity: 1; }
+    }
+
+    @keyframes floatUpDown {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    @keyframes pulseBlue {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 71, 224, 0.4); }
+      50%      { box-shadow: 0 0 0 12px rgba(0, 71, 224, 0); }
+    }
+
+    @keyframes dripDown {
+      0%   { height: 0; opacity: 0; }
+      100% { height: 55px; opacity: 0.7; }
+    }
+
+    @keyframes starSpin {
+      0%   { transform: rotate(0deg) scale(0.8); opacity: 0.3; }
+      50%  { transform: rotate(180deg) scale(1.1); opacity: 1; }
+      100% { transform: rotate(360deg) scale(0.8); opacity: 0.3; }
+    }
+
+    @keyframes readerSlideIn {
+      0%   { opacity: 0; transform: translateX(60px) scale(0.95); }
+      100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    @keyframes borderGlow {
+      0%, 100% { border-color: var(--blue-bright); box-shadow: 0 0 8px rgba(0, 71, 224, 0.3), inset 0 0 8px rgba(0, 71, 224, 0.05); }
+      50%      { border-color: var(--blue-neon); box-shadow: 0 0 20px rgba(41, 98, 255, 0.5), inset 0 0 16px rgba(41, 98, 255, 0.1); }
+    }
+
+    @keyframes textGlitchBlue {
+      0%, 100% { text-shadow: 3px 3px 0 var(--blue-bright), -3px -3px 0 var(--sky-bright); }
+      25%       { text-shadow: -3px 3px 0 var(--blue-neon), 3px -3px 0 var(--blue-royal); }
+      50%       { text-shadow: 3px -3px 0 var(--sky-bright), -3px 3px 0 var(--blue-crimson); }
+      75%       { text-shadow: -3px -3px 0 var(--blue-electric), 3px 3px 0 var(--sky-muted); }
+    }
+
+    @keyframes slideFromRight {
+      0%   { transform: translateX(40px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ═══════════════════════════════════════════
+       P5 DECORATIVE DIAMONDS (blue + gold)
+       ═══════════════════════════════════════════ */
+    .p5-diamond {
+      width: 12px; height: 12px;
+      background: var(--blue-bright);
+      transform: rotate(45deg);
+      display: inline-block;
+      flex-shrink: 0;
+      animation: diamondSpin 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
+    .p5-diamond.small { width: 8px; height: 8px; }
+    .p5-diamond.gold { background: var(--gold); }
+    .p5-diamond.sky { background: var(--sky-bright); }
+
+    /* ═══════════════════════════════════════════
+       CORNER DECORATIONS
+       ═══════════════════════════════════════════ */
+    .corner-deco {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.55;
+    }
+    .corner-deco.tl { top: 20px; left: 20px; }
+    .corner-deco.tr { top: 20px; right: 20px; }
+    .corner-deco.bl { bottom: 20px; left: 20px; }
+    .corner-deco.br { bottom: 20px; right: 20px; }
+
+    .corner-angle {
+      width: 40px; height: 40px;
+      border: 3px solid var(--blue-crimson);
+      position: relative;
+    }
+    .corner-angle.tl-shape {
+      border-right: none; border-bottom: none;
+      animation: panelReveal 0.8s ease 0.8s forwards;
+      opacity: 0;
+    }
+    .corner-angle.br-shape {
+      border-left: none; border-top: none;
+      animation: panelReveal 0.8s ease 1s forwards;
+      opacity: 0;
+    }
+    .corner-angle.tr-shape {
+      border-left: none; border-bottom: none;
+      animation: panelReveal 0.8s ease 0.9s forwards;
+      opacity: 0;
+    }
+    .corner-angle.bl-shape {
+      border-right: none; border-top: none;
+      animation: panelReveal 0.8s ease 1.1s forwards;
+      opacity: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       BLUE DRIP DECORATION (like reference blood drip)
+       ═══════════════════════════════════════════ */
+    .drip-container {
+      position: fixed;
+      top: 0;
+      right: 60px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .drip {
+      width: 3px;
+      background: linear-gradient(to bottom, var(--blue-bright), var(--sky-bright));
+      border-radius: 0 0 3px 3px;
+      margin-bottom: 12px;
+      animation: dripDown 2s ease-out forwards;
+      opacity: 0;
+    }
+    .drip:nth-child(1) { animation-delay: 1.2s; height: 40px; }
+    .drip:nth-child(2) { animation-delay: 1.5s; height: 25px; margin-left: 8px; }
+    .drip:nth-child(3) { animation-delay: 1.8s; height: 50px; margin-left: -4px; }
+
+    /* ═══════════════════════════════════════════
+       MAIN APP LAYOUT
+       ═══════════════════════════════════════════ */
+    .app-layout {
+      display: flex;
+      gap: 0rem;
+      padding: 1.5rem;
+      min-height: 100vh;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    /* Open state: top-align both panels */
+    .app-layout.reader-open {
+      align-items: flex-start;
+    }
+
+    /* ── Left spacer: pushes content center initially, collapses on open ── */
+    .layout-spacer {
+      transition: flex 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .app-layout:not(.reader-open) .layout-spacer {
+      flex: 1;
+    }
+    .app-layout.reader-open .layout-spacer {
+      flex: 0;
+    }
+
+    /* ── Right spacer: mirrors left spacer for perfect centering ── */
+    .layout-spacer-right {
+      transition: flex 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .app-layout:not(.reader-open) .layout-spacer-right {
+      flex: 1;
+    }
+    .app-layout.reader-open .layout-spacer-right {
+      flex: 0;
+    }
+
+    /* ── Article list panel ── */
+    .article-panel {
+      width: 620px;
+      max-width: 92vw;
+      flex-shrink: 0;
+      transition: width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  margin 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+    .app-layout.reader-open .article-panel {
+      width: 380px;
+      margin-right: 1.5rem;
+    }
+
+    /* ── Narrow panel: compact button internals ── */
+    .app-layout.reader-open .article-btn {
+      padding: 1rem 1.2rem;
+    }
+    .app-layout.reader-open .article-btn .art-cover-icon {
+      width: 40px; height: 40px;
+      font-size: 1.2rem;
+    }
+    .app-layout.reader-open .article-btn .art-title {
+      font-size: 1.15rem;
+    }
+    .app-layout.reader-open .article-btn .art-excerpt {
+      font-size: 0.78rem;
+    }
+    .app-layout.reader-open .article-btn .art-meta {
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+    .app-layout.reader-open .article-btn .art-date,
+    .app-layout.reader-open .article-btn .art-time {
+      font-size: 0.7rem;
+    }
+    .app-layout.reader-open .article-btn .art-tag {
+      font-size: 0.65rem;
+    }
+
+    /* ── Reader panel ── */
+    .reader-panel {
+      flex: 0;
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+      transform: translateX(50px);
+      transition: flex 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  opacity 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s,
+                  transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s;
+      max-height: calc(100vh - 3rem);
+      position: sticky;
+      top: 1.5rem;
+    }
+    .app-layout.reader-open .reader-panel {
+      flex: 1;
+      width: auto;
+      opacity: 1;
+      transform: translateX(0);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════
+       COMIC PANEL — adapted for blue P5 aesthetic
+       ═══════════════════════════════════════════ */
+    .comic-panel {
+      background: var(--bg-card);
+      border: 3px solid var(--black-pure);
+      outline: 1.5px solid var(--blue-crimson);
+      outline-offset: -6px;
+      padding: 2rem 1.8rem;
+      position: relative;
+      box-shadow:
+        8px 8px 0 rgba(0,0,0,0.9),
+        14px 14px 0 rgba(0, 71, 224, 0.12);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .comic-panel:hover {
+      transform: translate(-2px, -2px);
+      box-shadow:
+        10px 10px 0 rgba(0,0,0,0.9),
+        18px 18px 0 rgba(0, 71, 224, 0.22);
+    }
+
+    /* Inner halftone strip at top of comic panels */
+    .comic-panel::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 8px; right: 8px;
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue-bright) 0px,
+        var(--blue-bright) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+      opacity: 0.45;
+    }
+
+    /* ═══════════════════════════════════════════
+       HEADER — Archive title
+       ═══════════════════════════════════════════ */
+    .archive-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+    .archive-label {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 0.4rem;
+      opacity: 0;
+      animation: panelReveal 0.6s ease 0.1s forwards;
+    }
+    .archive-label .p5-diamond {
+      animation-delay: 0.3s;
+    }
+
+    .archive-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 400;
+      line-height: 0.9;
+      color: var(--white-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      opacity: 0;
+      animation: panelReveal 0.7s ease 0.25s forwards;
+    }
+    .archive-title .title-accent {
+      color: var(--blue-bright);
+      position: relative;
+      display: inline-block;
+    }
+    .archive-title .title-accent::after {
+      content: '✦';
+      position: absolute;
+      top: -0.4em;
+      right: -0.3em;
+      font-size: 0.3em;
+      color: var(--gold-bright);
+      animation: floatUpDown 2s ease-in-out infinite;
+    }
+
+    .archive-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: var(--sky-muted);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+      opacity: 0;
+      animation: panelReveal 0.6s ease 0.4s forwards;
+    }
+
+    /* Blue slash divider */
+    .header-slash {
+      width: 0;
+      height: 4px;
+      background: var(--blue-bright);
+      margin: 1.2rem auto;
+      position: relative;
+      animation: slashIn 1s ease 0.6s forwards;
+    }
+    .header-slash::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 0; right: 0;
+      height: 12px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue-crimson) 0px,
+        var(--blue-crimson) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+    }
+
+    /* ═══════════════════════════════════════════
+       ARTICLE BUTTONS — wide, rich info
+       ═══════════════════════════════════════════ */
+    .article-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .article-btn {
+      display: block;
+      width: 100%;
+      background: var(--bg-card);
+      border: 3px solid var(--black-pure);
+      outline: 1.5px solid var(--blue-steel);
+      outline-offset: -6px;
+      padding: 1.3rem 1.5rem;
+      position: relative;
+      cursor: pointer;
+      text-align: left;
+      color: var(--white-soft);
+      font-family: var(--font-body);
+      box-shadow:
+        6px 6px 0 rgba(0,0,0,0.85),
+        10px 10px 0 rgba(0, 71, 224, 0.08);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+    .article-btn::before {
+      content: '';
+      position: absolute;
+      top: 6px; left: 6px; right: 6px;
+      height: 3px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue-bright) 0px,
+        var(--blue-bright) 3px,
+        transparent 3px,
+        transparent 6px
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .article-btn:hover {
+      transform: translate(-3px, -3px);
+      box-shadow:
+        10px 10px 0 rgba(0,0,0,0.9),
+        16px 16px 0 rgba(0, 71, 224, 0.18);
+      outline-color: var(--blue-bright);
+      border-color: var(--blue-bright);
+    }
+    .article-btn:hover::before {
+      opacity: 0.6;
+    }
+    .article-btn:active {
+      transform: translate(-1px, -1px);
+      box-shadow:
+        4px 4px 0 rgba(0,0,0,0.85),
+        8px 8px 0 rgba(0, 71, 224, 0.1);
+    }
+
+    /* Selected state */
+    .article-btn.active {
+      outline-color: var(--blue-neon);
+      outline-width: 2px;
+      border-color: var(--blue-neon);
+      animation: borderGlow 2.5s ease-in-out infinite;
+      box-shadow:
+        6px 6px 0 rgba(0,0,0,0.9),
+        10px 10px 0 rgba(41, 98, 255, 0.2);
+    }
+    .article-btn.active::before {
+      opacity: 0.7;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue-neon) 0px,
+        var(--blue-neon) 3px,
+        transparent 3px,
+        transparent 6px
+      );
+    }
+
+    /* Article button inner layout */
+    .article-btn .art-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .article-btn .art-date {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--sky-muted);
+      letter-spacing: 0.06em;
+      background: rgba(0, 71, 224, 0.12);
+      padding: 0.15em 0.6em;
+      border-radius: 3px;
+    }
+    .article-btn .art-time {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+    .article-btn .art-tag {
+      font-family: var(--font-accent);
+      font-size: 0.7rem;
+      color: var(--sky-soft);
+      background: rgba(91, 158, 255, 0.1);
+      padding: 0.15em 0.55em;
+      border-radius: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .article-btn .art-cover-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .article-btn .art-cover-icon {
+      width: 52px; height: 52px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--blue-deep), var(--blue-steel));
+      border: 2px solid var(--blue-crimson);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transform: rotate(0deg);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      position: relative;
+    }
+    .article-btn:hover .art-cover-icon {
+      transform: rotate(-3deg) scale(1.05);
+      border-color: var(--blue-bright);
+    }
+    /* Halftone dot in corner of cover */
+    .article-btn .art-cover-icon::after {
+      content: '';
+      position: absolute;
+      bottom: 3px; right: 3px;
+      width: 12px; height: 12px;
+      background: radial-gradient(circle, var(--blue-bright) 2px, transparent 2px);
+      background-size: 6px 6px;
+      opacity: 0.5;
+    }
+
+    .article-btn .art-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .article-btn .art-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--white-soft);
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+      transition: color 0.3s ease;
+    }
+    .article-btn:hover .art-title {
+      color: var(--sky-bright);
+    }
+    .article-btn .art-excerpt {
+      font-size: 0.85rem;
+      color: var(--sky-muted);
+      line-height: 1.5;
+      opacity: 0.75;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      transition: opacity 0.3s ease;
+    }
+    .article-btn:hover .art-excerpt {
+      opacity: 0.95;
+    }
+
+    .article-btn .art-arrow {
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%) translateX(0);
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--blue-steel);
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+    .article-btn:hover .art-arrow {
+      opacity: 1;
+      color: var(--blue-bright);
+      transform: translateY(-50%) translateX(6px);
+    }
+
+    /* ── Staggered entrance for article buttons ── */
+    .article-btn {
+      opacity: 0;
+      transform: translateY(25px);
+      animation: panelReveal 0.5s ease forwards;
+    }
+    .article-btn:nth-child(1) { animation-delay: 0.5s; }
+    .article-btn:nth-child(2) { animation-delay: 0.6s; }
+    .article-btn:nth-child(3) { animation-delay: 0.7s; }
+    .article-btn:nth-child(4) { animation-delay: 0.8s; }
+    .article-btn:nth-child(5) { animation-delay: 0.9s; }
+    .article-btn:nth-child(6) { animation-delay: 1.0s; }
+
+    /* ═══════════════════════════════════════════
+       READER PANEL
+       ═══════════════════════════════════════════ */
+    .reader-inner {
+      background: var(--bg-reader);
+      border: 3px solid var(--black-pure);
+      outline: 1.5px solid var(--blue-crimson);
+      outline-offset: -6px;
+      padding: 2.5rem 2rem;
+      position: relative;
+      box-shadow:
+        8px 8px 0 rgba(0,0,0,0.9),
+        14px 14px 0 rgba(0, 71, 224, 0.1);
+      min-height: 400px;
+    }
+    .reader-inner::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 8px; right: 8px;
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue-bright) 0px,
+        var(--blue-bright) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+      opacity: 0.45;
+    }
+
+    /* Reader header with meta info */
+    .reader-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 2px dashed rgba(0, 71, 224, 0.2);
+    }
+    .reader-header .rh-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .reader-header .rh-date {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--sky-muted);
+      letter-spacing: 0.06em;
+    }
+    .reader-header .rh-tag {
+      font-family: var(--font-accent);
+      font-size: 0.7rem;
+      color: var(--sky-soft);
+      background: rgba(91, 158, 255, 0.12);
+      padding: 0.15em 0.6em;
+      border-radius: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .reader-header .rh-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--blue-bright);
+      line-height: 1.1;
+    }
+
+    /* Back button */
+    .reader-back {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.5rem;
+      width: 36px; height: 36px;
+      background: var(--bg-card);
+      border: 2px solid var(--blue-steel);
+      color: var(--sky-muted);
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 5;
+      transform: rotate(45deg);
+    }
+    .reader-back span {
+      transform: rotate(-45deg);
+      display: block;
+    }
+    .reader-back:hover {
+      border-color: var(--blue-bright);
+      color: var(--blue-bright);
+      box-shadow: 0 0 12px rgba(0, 71, 224, 0.3);
+    }
+
+    /* ═══════════════════════════════════════════
+       MARKDOWN CONTENT STYLING (reader body)
+       ═══════════════════════════════════════════ */
+    .md-content {
+      line-height: 1.85;
+      color: var(--white-soft);
+      animation: readerSlideIn 0.5s ease 0.1s forwards;
+      opacity: 0;
+    }
+    .md-content.reader-open-anim {
+      animation: readerSlideIn 0.5s ease 0.15s forwards;
+      opacity: 0;
+    }
+
+    /* Headings */
+    .md-content h1 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--blue-bright);
+      letter-spacing: 0.04em;
+      margin: 2rem 0 0.8rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid rgba(0, 71, 224, 0.2);
+      position: relative;
+    }
+    .md-content h1::before {
+      content: '◆ ';
+      font-size: 0.5em;
+      color: var(--gold);
+      vertical-align: middle;
+    }
+    .md-content h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--sky-bright);
+      letter-spacing: 0.04em;
+      margin: 1.8rem 0 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .md-content h2::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--blue-bright);
+      transform: rotate(45deg);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .md-content h3 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--sky-muted);
+      letter-spacing: 0.04em;
+      margin: 1.5rem 0 0.5rem;
+    }
+    .md-content h4, .md-content h5, .md-content h6 {
+      font-family: var(--font-body);
+      font-weight: 600;
+      color: var(--sky-soft);
+      margin: 1.2rem 0 0.4rem;
+    }
+
+    /* Paragraphs & text */
+    .md-content p {
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+    .md-content strong {
+      color: var(--sky-bright);
+      font-weight: 600;
+    }
+    .md-content em {
+      color: var(--gold-pale);
+      font-style: italic;
+    }
+    .md-content del {
+      opacity: 0.5;
+    }
+
+    /* Links */
+    .md-content a {
+      color: var(--blue-neon);
+      text-decoration: underline;
+      text-decoration-color: rgba(41, 98, 255, 0.3);
+      text-underline-offset: 3px;
+      transition: all 0.2s ease;
+    }
+    .md-content a:hover {
+      color: var(--sky-bright);
+      text-decoration-color: var(--sky-bright);
+    }
+
+    /* Lists */
+    .md-content ul, .md-content ol {
+      margin: 0.8rem 0 1rem 1.5rem;
+    }
+    .md-content li {
+      margin-bottom: 0.35rem;
+      font-size: 0.95rem;
+      position: relative;
+    }
+    .md-content ul > li::marker {
+      color: var(--blue-bright);
+      content: '◆ ';
+    }
+    .md-content ol > li::marker {
+      color: var(--blue-bright);
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+    .md-content li > ul > li::marker {
+      content: '◇ ';
+      color: var(--sky-muted);
+      font-size: 0.7em;
+    }
+
+    /* Blockquotes */
+    .md-content blockquote {
+      margin: 1.2rem 0;
+      padding: 0.8rem 1.2rem;
+      border-left: 4px solid var(--blue-bright);
+      background: rgba(0, 71, 224, 0.06);
+      position: relative;
+      font-style: italic;
+      color: var(--sky-soft);
+    }
+    .md-content blockquote::before {
+      content: '"';
+      position: absolute;
+      top: -0.3rem;
+      left: 0.5rem;
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      color: rgba(0, 71, 224, 0.15);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .md-content blockquote p {
+      margin-bottom: 0.3rem;
+    }
+
+    /* Code — inline */
+    .md-content code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: rgba(0, 71, 224, 0.15);
+      padding: 0.15em 0.4em;
+      border-radius: 3px;
+      color: var(--sky-bright);
+    }
+    /* Code blocks */
+    .md-content pre {
+      margin: 1.2rem 0;
+      padding: 1.2rem;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--blue-steel);
+      border-radius: 3px;
+      overflow-x: auto;
+      position: relative;
+    }
+    .md-content pre::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue-bright), transparent);
+    }
+    .md-content pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.82rem;
+      color: var(--sky-soft);
+      line-height: 1.7;
+    }
+
+    /* Tables */
+    .md-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2rem 0;
+      font-size: 0.9rem;
+    }
+    .md-content th {
+      font-family: var(--font-display);
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      background: rgba(0, 71, 224, 0.15);
+      border-bottom: 2px solid var(--blue-bright);
+      color: var(--blue-bright);
+    }
+    .md-content td {
+      padding: 0.5rem 0.8rem;
+      border-bottom: 1px solid rgba(91, 158, 255, 0.1);
+    }
+    .md-content tr:hover td {
+      background: rgba(0, 71, 224, 0.04);
+    }
+
+    /* Horizontal rule */
+    .md-content hr {
+      border: none;
+      height: 2px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue-bright) 0px,
+        var(--blue-bright) 4px,
+        transparent 4px,
+        transparent 10px
+      );
+      margin: 2rem 0;
+      opacity: 0.5;
+    }
+
+    /* Images */
+    .md-content img {
+      max-width: 100%;
+      border: 2px solid var(--blue-steel);
+      border-radius: 3px;
+      margin: 1rem 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       EMPTY READER STATE
+       ═══════════════════════════════════════════ */
+    .reader-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      min-height: 300px;
+      opacity: 0.5;
+    }
+    .reader-empty .empty-diamond {
+      width: 48px; height: 48px;
+      background: var(--blue-steel);
+      transform: rotate(45deg);
+      margin-bottom: 1.5rem;
+      animation: floatUpDown 3s ease-in-out infinite;
+    }
+    .reader-empty .empty-text {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 0.15em;
+      color: var(--sky-muted);
+      text-transform: uppercase;
+    }
+
+    /* ═══════════════════════════════════════════
+       API STATUS INDICATOR
+       ═══════════════════════════════════════════ */
+    .api-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--sky-muted);
+      opacity: 0.5;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .api-status .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue-steel);
+      position: relative;
+    }
+    .api-status .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1px solid var(--blue-steel);
+      opacity: 0.5;
+      animation: pulseBlue 3s ease-in-out infinite;
+    }
+
+    /* ═══════════════════════════════════════════
+       SCROLLBAR — blue themed
+       ═══════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--blue-deep);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--blue-crimson); }
+
+    /* Reader panel scrollbar */
+    .reader-panel::-webkit-scrollbar { width: 5px; }
+    .reader-panel::-webkit-scrollbar-track { background: transparent; }
+    .reader-panel::-webkit-scrollbar-thumb {
+      background: var(--blue-steel);
+      border-radius: 3px;
+    }
+
+    /* ═══════════════════════════════════════════
+       SELECTION
+       ═══════════════════════════════════════════ */
+    ::selection {
+      background: var(--blue-bright);
+      color: var(--white-warm);
+    }
+
+    /* ═══════════════════════════════════════════
+       FOOTER IN LIST
+       ═══════════════════════════════════════════ */
+    .list-footer {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px dashed rgba(0, 71, 224, 0.2);
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--sky-muted);
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: panelReveal 0.5s ease 1.1s forwards;
+    }
+    .list-footer span {
+      font-family: var(--font-display);
+      letter-spacing: 0.08em;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════ */
+    @media (max-width: 860px) {
+      .app-layout {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      .article-panel {
+        margin: 0 auto;
+      }
+      .app-layout.reader-open {
+        flex-direction: column;
+      }
+      .app-layout.reader-open .article-panel {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+      }
+      .app-layout.reader-open .layout-spacer {
+        flex: 0;
+        display: none;
+      }
+      .app-layout.reader-open .reader-panel {
+        flex: 1;
+        width: 100%;
+        max-height: none;
+        position: static;
+        transform: none;
+      }
+      .article-btn .art-arrow {
+        display: none;
+      }
+      .corner-deco { display: none; }
+      .drip-container { right: 15px; }
+      .reader-inner { padding: 1.5rem 1rem; }
+      .reader-back { top: 0.8rem; right: 0.8rem; }
+    }
+
+    @media (max-width: 480px) {
+      .archive-title {
+        font-size: 2.5rem;
+      }
+      .article-btn {
+        padding: 1rem;
+      }
+      .article-btn .art-cover-icon {
+        width: 38px; height: 38px;
+        font-size: 1.1rem;
+      }
+      .article-btn .art-title {
+        font-size: 1.1rem;
+      }
+      .reader-header .rh-title {
+        font-size: 1.5rem;
+      }
+      .md-content h1 { font-size: 1.5rem; }
+      .md-content h2 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ BACKGROUND LAYERS ═══════════════ -->
+  <div class="bg-base"></div>
+  <div class="bg-polkadot"></div>
+  <div class="bg-polkadot-large"></div>
+  <div class="bg-halftone"></div>
+  <div class="bg-action-lines"></div>
+
+  <!-- ═══════════════ CORNER DECORATIONS ═══════════════ -->
+  <div class="corner-deco tl">
+    <div class="corner-angle tl-shape"></div>
+  </div>
+  <div class="corner-deco tr">
+    <div class="corner-angle tr-shape"></div>
+  </div>
+  <div class="corner-deco bl">
+    <div class="corner-angle bl-shape"></div>
+  </div>
+  <div class="corner-deco br">
+    <div class="corner-angle br-shape"></div>
+  </div>
+
+  <!-- ═══════════════ BLUE DRIP DECORATION ═══════════════ -->
+  <div class="drip-container">
+    <div class="drip"></div>
+    <div class="drip"></div>
+    <div class="drip"></div>
+  </div>
+
+  <!-- ═══════════════ MAIN APP LAYOUT ═══════════════ -->
+  <div class="app-layout" id="appLayout">
+
+    <!-- Left spacer for centering -->
+    <div class="layout-spacer" id="layoutSpacer"></div>
+
+    <!-- ── ARTICLE LIST PANEL ── -->
+    <div class="article-panel" id="articlePanel">
+      <!-- Archive header -->
+      <header class="archive-header">
+        <div class="archive-label">
+          <span class="p5-diamond gold" style="animation-delay: 0.3s;"></span>
+          PHANTOM ARCHIVE
+          <span class="p5-diamond gold" style="animation-delay: 0.3s;"></span>
+        </div>
+        <h1 class="archive-title">
+          <span class="title-accent">怪</span>盗文庫
+        </h1>
+        <p class="archive-subtitle">· Steal Your Wisdom ·</p>
+        <div class="header-slash"></div>
+      </header>
+
+      <!-- Article buttons (populated by JS) -->
+      <nav class="article-list" id="articleList">
+        <!-- JS renders buttons here -->
+      </nav>
+
+      <!-- Footer -->
+      <footer class="list-footer">
+        <span>◆ MISSION SELECT ◆</span>
+        <span id="articleCount"></span>
+      </footer>
+    </div>
+
+    <!-- Right spacer for symmetric centering -->
+    <div class="layout-spacer-right" id="layoutSpacerRight"></div>
+
+    <!-- ── MARKDOWN READER PANEL ── -->
+    <div class="reader-panel" id="readerPanel">
+      <div class="reader-inner">
+        <button class="reader-back" id="readerBack" title="Close reader">
+          <span>✕</span>
+        </button>
+        <div class="reader-header" id="readerHeader" style="display:none;">
+          <div class="rh-meta">
+            <span class="rh-date" id="rhDate"></span>
+            <span class="rh-tag" id="rhTag"></span>
+          </div>
+          <h2 class="rh-title" id="rhTitle"></h2>
+        </div>
+        <div class="md-content" id="mdContent">
+          <div class="reader-empty">
+            <div class="empty-diamond"></div>
+            <p class="empty-text">Select a mission<br>to begin reading</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ API STATUS ═══════════════ -->
+  <div class="api-status" title="API endpoint status">
+    <span class="status-dot"></span>
+    <span>PORT :3000 · STANDBY</span>
+  </div>
+
+  <!-- ═══════════════ SCRIPTS ═══════════════ -->
+  <script>
+  /* ═══════════════════════════════════════════════════════════
+     CONFIGURATION — Reserve port for future backend
+     ═══════════════════════════════════════════════════════════ */
+  const CONFIG = {
+    // Reserved API endpoint — connect your backend here
+    API_BASE_URL: 'http://localhost:3000/api',
+    // Feature flag: set to true when backend is ready
+    USE_API: false,
+    // Endpoints (reserved)
+    ENDPOINTS: {
+      articles: '/articles',
+      articleById: '/articles/:id',
+    },
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     STATIC ARTICLE DATA (replace with API fetch)
+     ═══════════════════════════════════════════════════════════ */
+  const STATIC_ARTICLES = [
+    {
+      id: 'mission-01',
+      title: '心の怪盗団 · 最初の任務',
+      date: '2026.06.01',
+      time: '14:30',
+      cover: '🎭',
+      tags: ['使命', '怪盗'],
+      excerpt: '最初のパレスへの潜入、そしてペルソナの覚醒…すべてはここから始まった。',
+      content: `
+# 心の怪盗団 · 最初の任務
+
+> *「汝、我が名を呼べ。心の怪盗団、出陣せよ！」*
+
+---
+
+## プロローグ · 序章
+
+それは何の変哲もない一日だった。**歪んだ欲望**が渦巻くこの街で、俺たちはただの学生に過ぎなかった。
+
+しかし、ある日スマートフォンに現れた謎のアプリ——**異世界ナビ**。それを起動した瞬間、世界は一変した。
+
+### 覚醒の瞬間
+
+パレスと呼ばれる異世界に足を踏み入れた時、そこで見たものは想像を絶する光景だった。
+
+- 🔹 **認知の壁** — 現実と異世界を隔てる薄い膜
+- 🔹 **シャドウ** — 抑圧された心が生み出すもう一人の自分
+- 🔹 **ペルソナ** — 心の牢獄を打ち破る反逆の力
+
+> ペルソナとは、人が社会生活を送る上で外側に見せる「仮面」のこと。しかし真のペルソナ使いは、その仮面を自ら剥がし、内なる力を解き放つ。
+
+---
+
+## 第一章 · 歪んだパレス
+
+### 最初の標的
+
+最初の標的は、学校で権力を振るかざす**体育教師**。彼のパレスは中世の城塞として具現化していた。
+
+\`\`\`
+パレス深度: Level 3
+危険度: ★★★☆☆
+推定クリア時間: 7日間
+\`\`\`
+
+パレス内では、シャドウが徘徊し、侵入者を排除しようと襲いかかってくる。しかし、俺たちには**ペルソナ**がある。
+
+| メンバー | コードネーム | 初期ペルソナ | 属性 |
+|----------|-------------|-------------|------|
+| 主人公 | Joker | アルセーヌ | 呪怨 |
+| リュウジ | Skull | キャプテン・キッド | 電撃 |
+| アン | Panther | カルメン | 火炎 |
+| モルガナ | Mona | ゾロ | 疾風 |
+
+### 戦術の基本
+
+1. **敵の弱点を突け** — 属性相性が全ての基本
+2. **ホールドアップ** — 全敵ダウン時に発動可能
+3. **総攻撃** — 一斉攻撃で大ダメージを与える決戦技
+4. **アイテムを惜しむな** — 回復・補助は戦略の要
+
+---
+
+## 第二章 · 予告状
+
+### 決戦前夜
+
+パレスの最深部に辿り着いた時、俺たちは**予告状**を送る。これが心の怪盗団の流儀だ。
+
+> **Calling Card**
+>
+> 貴様の歪んだ欲望、我々が頂戴する。
+> 心の怪盗団、ここに見参。
+> 覚悟せよ。
+
+予告状を出すことで標的は**警戒を強める**が、同時に**宝（トレジャー）**が実体化する。リスクとリターンの狭間で、怪盗団の真価が問われる。
+
+---
+
+## 終章 · そして日常へ
+
+パレスが崩壊し、標的の心から歪みが消える。現実世界では、**改心**という形で結果が現れる。
+
+だが、これはまだ始まりに過ぎない。
+
+次の標的は、さらに強大で、さらに狡猾だ。心の怪盗団の旅は、これからも続いていく——
+
+> *「俺たちは、心の怪盗団だ。」*
+`
+    },
+    {
+      id: 'mission-02',
+      title: 'ベルベットルームの秘密',
+      date: '2026.05.28',
+      time: '09:15',
+      cover: '🟦',
+      tags: ['覚醒', 'ベルベット'],
+      excerpt: '青い部屋に響く声——それは契約。囚人と主人、そしてペルソナ融合の儀式。',
+      content: `
+# ベルベットルームの秘密
+
+> *「ようこそ、我がベルベットルームへ。あなたは我々の客人です。」*
+
+---
+
+## 青の間
+
+毎夜、夢の中で訪れる**青い部屋**——ベルベットルーム。
+
+そこには長い鼻の老人**イゴール**と、その助手たちが待っている。彼らはペルソナの力を管理し、より強力な力へと導く存在だ。
+
+### ペルソナ合体の儀式
+
+複数のペルソナを融合させ、新たなペルソナを生み出す**合体**。これは単なる合成ではなく、**絆**と**意志**が試される儀式である。
+
+\`\`\`javascript
+// ペルソナ合体の掟
+function personaFusion(personaA, personaB) {
+  // アルカナの相性が結果を左右する
+  const arcanaResult = calculateArcanaCompatibility(
+    personaA.arcana,
+    personaB.arcana
+  );
+
+  // スキル継承：確率で親のスキルを引き継ぐ
+  const inheritedSkills = inheritSkills(
+    personaA.skills,
+    personaB.skills
+  );
+
+  return {
+    name: generateName(arcanaResult),
+    level: Math.floor((personaA.level + personaB.level) / 2) + 1,
+    arcana: arcanaResult,
+    skills: inheritedSkills,
+  };
+}
+\`\`\`
+
+### アルカナの種類
+
+タロットカードに基づく22種の大アルカナ。それぞれが異なる属性と哲学を表す。
+
+- **愚者（The Fool）** — 無限の可能性。主人公のアルカナ
+- **魔術師（The Magician）** — 意志と技術
+- **女教皇（The High Priestess）** — 直感と神秘
+- **皇帝（The Emperor）** — 統治と秩序
+- **恋人（The Lovers）** — 選択と絆の深まり
+
+---
+
+## 囚人と主人
+
+> ベルベットルームに囚われた**囚人**こそが主人公。
+
+牢獄の中にいる主人公は、イゴールに**更生**を求められる。だが、この更生とは何か？
+
+1. 社会への適応ではない
+2. 自由意志の放棄でもない
+3. **真の自由を手に入れるための旅**
+
+---
+
+## 双子の看守
+
+カロリーヌとジュスティーヌ——二人の看守は主人公を監視し、試練を与える。
+
+彼女たちの正体、そしてイゴールの真意は、物語の核心に深く関わっている。
+
+> *「契約は履行されねばならない。それがこの部屋の掟だ。」*
+
+ベ ルベットルームは単なる施設ではない。**運命そのもの**が交錯する場所なのだ。
+`
+    },
+    {
+      id: 'mission-03',
+      title: 'モルガナの戦術講座',
+      date: '2026.05.20',
+      time: '22:00',
+      cover: '🐱',
+      tags: ['戦術', 'ガイド'],
+      excerpt: '元人間（？）のモルガナが教える、パレス攻略の鉄則と戦闘テクニック。',
+      content: `
+# モルガナの戦術講座
+
+> *「よし、行くぞ！俺についてこい！」*
+
+---
+
+## 基本戦術ガイド
+
+パレス探索とシャドウ戦闘を制するための**実践的ガイド**だ。
+
+### 1. アンブッシュ（先制攻撃）
+
+シャドウの背後から接近し、**不意を突く**。先制を取れれば戦闘の勝率は格段に上がる。
+
+- マップをよく見て、シャドウの**巡回パターン**を把握しろ
+- 物陰や高低差を利用して**死角**から近づけ
+- 一度見つかっても、障害物で**視界を切れば**再チャンスはある
+
+### 2. 属性相性
+
+| 属性 | アイコン | 弱点を突ける相手の例 |
+|------|---------|-------------------|
+| 物理 | ⚔️ | 魔法使い系シャドウ |
+| 火炎 | 🔥 | 氷結系シャドウ |
+| 氷結 | ❄️ | 火炎系シャドウ |
+| 電撃 | ⚡ | 疾風系シャドウ |
+| 疾風 | 🌪️ | 電撃系シャドウ |
+| 念動 | 🌀 | 精神力が低い相手 |
+| 核熱 | ☢️ | 物理防御が高い相手 |
+| 祝福 | ✨ | 呪怨系シャドウ |
+| 呪怨 | 💀 | 祝福系シャドウ |
+
+### 3. バトンタッチ
+
+\`\`\`
+1ターン目の流れ（理想形）：
+  Joker → 敵弱点を突く → ダウン！
+  → バトンタッチ → Skull
+  → Skullが別の敵の弱点を突く → ダウン！
+  → バトンタッチ → Panther
+  → 全員ダウン → ホールドアップ！
+  → 総攻撃！！
+\`\`\`
+
+---
+
+## 上級テクニック
+
+### テクニカル攻撃
+
+状態異常のかかった敵に特定の属性で追撃すると**テクニカル**が発生。通常より大きなダメージと高確率のダウンを狙える。
+
+- **氷結** 中の敵に **物理** → 粉砕！
+- **感電** 中の敵に **物理** → 感電爆発！
+- **炎上** 中の敵に **疾風** → 炎が燃え広がる！
+
+### SP管理
+
+> *「SP切れは死を意味する。回復はケチるな、だが無駄遣いもするな。」*
+
+1. 道中の弱い敵は**物理スキル**で処理
+2. **ベルベットルーム**復帰後はSP全回復
+3. **ソウルドロップ**はボス戦用に温存しろ
+
+---
+
+覚えておけ——**知識は力だ**。戦術を知る者と知らぬ者では、パレス攻略の難易度は天と地ほどの差がある。
+
+> *「へへん、俺様の言う通りだろ？」*
+`
+    },
+    {
+      id: 'mission-04',
+      title: '絆の力 · コープのすべて',
+      date: '2026.05.15',
+      time: '16:45',
+      cover: '🤝',
+      tags: ['コープ', '絆'],
+      excerpt: '22枚のアルカナが紡ぐ絆の物語。コープを深めて、最強のペルソナを生み出せ。',
+      content: `
+# 絆の力 · コープのすべて
+
+> *「人との絆こそが、真の力となる。」*
+
+---
+
+## コープ（Cooperation）とは
+
+ペルソナシリーズの核心システム。様々な人物との**絆**を深めることで、ペルソナ合体時のボーナスや新たな能力が解放される。
+
+### コープの二重構造
+
+1. **ストーリー進行型** — メインストーリーの進行で自動的にランクアップ
+   - 愚者（イゴール）
+   - 魔術師（モルガナ）
+   - 審判（サエ）
+
+2. **自由行動型** — プレイヤーの選択で育成
+   - 多くのコープはこちらに該当
+   - 限られた時間をどう配分するかが**鍵**
+
+---
+
+## アルカナ別・解放アビリティ
+
+### 🌟 おすすめ早期育成コープ
+
+| 優先度 | アルカナ | 協力者 | 主な恩恵 |
+|--------|---------|--------|---------|
+| S | 死神 | タエミ先生 | 回復アイテムの品揃え・割引 |
+| S | 節制 | 川上先生 | 授業中の自由時間・マッサージ |
+| A | 太陽 | 吉田代議士 | シャドウ交渉の強化 |
+| A | 月 | 三島 | 経験値ボーナス |
+
+### アビリティの種類
+
+- **バトンタッチ強化** — バトンタッチ後の攻撃力アップ
+- **追撃** — 弱点を突いた後に追加攻撃が発生
+- **耐性無視** — 敵の耐性を無視して攻撃可能に
+- **アイテム生成** — 戦闘終了後にアイテムを入手
+
+---
+
+## 選択肢の重要性
+
+コープイベントでの**会話選択肢**はランクアップの成否を左右する。
+
+> **鉄則**: 相手の話をよく聞き、**真摯に向き合え**。お世辞は必要ない。誠実さこそが絆を深める。
+
+---
+
+## 最大值の先に
+
+すべてのコープをMAXにした時、真のペルソナが姿を現す——
+
+> *「君はもう、一人じゃない。」*
+`
+    },
+    {
+      id: 'mission-05',
+      title: 'メメントス · 民衆のパレス',
+      date: '2026.05.10',
+      time: '23:59',
+      cover: '🚇',
+      tags: ['メメントス', '探索'],
+      excerpt: '地下鉄の深部に広がる集合的無意識の迷宮。民衆すべてのパレスがここにある。',
+      content: `
+# メメントス · 民衆のパレス
+
+> *「ここは、すべての人間の認知が集まる場所——メメントス。」*
+
+---
+
+## メメントスとは
+
+現実の地下鉄と表裏一体の異世界。個々のパレスとは異なり、**大衆の集合的無意識**が具現化した無限迷宮だ。
+
+### パレスとの違い
+
+| 特徴 | 個別パレス | メメントス |
+|------|----------|-----------|
+| 主 | 歪んだ個人 | 民衆全体 |
+| 広さ | 有限 | ほぼ無限 |
+| 構造 | テーマ性あり | 地下鉄のごとく階層的 |
+| 変化 | 崩壊する | 永続的に存在 |
+
+---
+
+## 探索の心得
+
+### 1. フロア構造
+
+各フロアは**ランダム生成**され、入るたびに構造が変化する。
+
+\`\`\`
+メメントス深度マップ：
+  Path of Qimranut    （前半）
+  Path of Aiyatsbus   （中盤）
+  Path of Chemdah     （後半）
+  Path of Kaitul      （最深部）
+  Path of Adyeshach   （最奥）
+\`\`\`
+
+### 2. アイテム収集
+
+- 🔹 **宝箱** — フロアの隅々に隠された報酬
+- 🔹 **花** — 換金アイテム。売却資金は装備強化に
+- 🔹 **スタンプ** — フォックス（喜多川）のコープで交換可能
+
+### 3. 刈り取る者
+
+> ⚠️ **警告**: 同じフロアに長居すると「**刈り取る者**」が出現する。
+
+鎖の音が聞こえたら——即座に**離脱**しろ。戦うのはまだ早い。
+
+---
+
+## 依頼（リクエスト）
+
+メメントスでは **SNS 経由の依頼** を遂行することで民衆の心の歪みを矯正できる。
+
+1. **依頼を受ける** — 三島からの連絡をチェック
+2. **対象を特定** — メメントス内で歪みの主を探す
+3. **戦闘と改心** — シャドウを倒して歪みを除去
+
+> *「メメントスは、俺たち怪盗団の終わらない戦場だ。」*
+`
+    },
+    {
+      id: 'mission-06',
+      title: '異世界ナビの解析',
+      date: '2026.05.05',
+      time: '03:00',
+      cover: '📱',
+      tags: ['技術', '異世界'],
+      excerpt: 'スマートフォンに突然現れた赤いアプリ——その正体と起動条件を探る技術レポート。',
+      content: `
+# 異世界ナビの解析
+
+> *「起動条件：キーワード。対象の名前、パレスの形、そして——」*
+
+---
+
+## アプリの概要
+
+**異世界ナビ**（いせかいナビ）は、スマートフォンに突如インストールされる謎のアプリケーション。
+
+赤と黒の幾何学的アイコンが特徴で、ストアには存在しない。削除しても、条件が揃うと**自動的に再インストール**される。
+
+### 基本スペック
+
+| 項目 | 詳細 |
+|------|------|
+| サイズ | 0.0 MB（ストレージ非占有） |
+| 権限 | 位置情報・カメラ・マイク（すべて強制許可） |
+| OS | 不明（クロスプラットフォーム） |
+| 通信 | 異世界間メタバースプロトコル（推定） |
+
+---
+
+## 起動メカニズム
+
+### ナビゲーション手順
+
+ナビを起動するには3つの**キーワード**が必要：
+
+1. **対象のフルネーム** — 歪みの主の実名
+2. **パレスの名称** — 歪んだ認知が形作る異世界の「名前」
+3. **場所** — 現実世界での対象の活動拠点
+
+\`\`\`javascript
+// 異世界ナビ起動シミュレータ
+class MetaNav {
+  constructor() {
+    this.keywords = [];
+  }
+
+  inputKeyword(word) {
+    this.keywords.push(word);
+    if (this.keywords.length === 3) {
+      return this.activate();
+    }
+    return '候補が見つかりました…';
+  }
+
+  activate() {
+    // 空間を歪ませ、パレスへ転送
+    console.log('✧ Beginning navigation...');
+    return {
+      status: 'NAVIGATING',
+      destination: this.resolveKeywords(),
+      distortion: 'HIGH',
+    };
+  }
+}
+\`\`\`
+
+---
+
+## 注意事項
+
+> **重要**: ナビ起動中は現実世界の時間が**歪む**。長居すると向こうで数時間が、現実では数日に——
+
+---
+
+## 未解明の謎
+
+- 誰がこのアプリを**開発**したのか？
+- なぜ特定の人間にしか**インストール**されないのか？
+- 「**抹消**」機能の真の意味とは？
+
+調査は続く。
+`
+    },
+    {
+      id: 'mission-07',
+      title: 'JOKER · 仮面の下の素顔',
+      date: '2026.04.28',
+      time: '20:00',
+      cover: '🃏',
+      tags: ['キャラ', '主人公'],
+      excerpt: '寡黙なリーダーの内面に迫る。仮面を剥いだ時、そこにいるのは誰か。',
+      content: `
+# JOKER · 仮面の下の素顔
+
+> *「俺は……心の怪盗団のリーダーだ。」*
+
+---
+
+## コードネーム：Joker
+
+**Joker（ジョーカー）**——トランプで最強の切り札。この名を冠する主人公は、心の怪盗団のリーダーとして仲間を導く。
+
+### 基本プロフィール
+
+- **本名**：プレイヤーが命名
+- **コードネーム**：Joker
+- **初期ペルソナ**：アルセーヌ
+- **アルカナ**：愚者（The Fool）
+- **近接武器**：ナイフ
+- **遠隔武器**：ハンドガン
+
+---
+
+## ワイルドの力
+
+Joker の最大の特性は **ワイルド**——複数のペルソナを所持・切り替えできる唯一の存在だ。
+
+### ペルソナ切り替えの戦術
+
+1. **敵の弱点に合わせる** — 複数属性を使い分け
+2. **状況に応じたビルド** — 回復役・攻撃役・補助役を一人でこなす
+3. **ベルベットルームとの連携** — 合体でより強力なペルソナを
+
+> 「ワイルド」の力は、**人との絆**によって強化される。コープこそが Joker の真の力の源だ。
+
+---
+
+## リーダーシップ
+
+### 寡黙だが決断力がある
+
+- 必要な時にしか**口を開かない**
+- だが一度決断すれば、迷いはない
+- 仲間からの信頼は**絶大**
+
+### 作戦指示
+
+戦闘中の指示は的確かつ冷静。直感だけでなく、**敵の行動パターン**を瞬時に読み取った上での判断だ。
+
+---
+
+## 仮面の意味
+
+> *仮面は隠すためのものじゃない。本当の自分を解き放つためのものだ。*
+
+アルセーヌとの契約の言葉——
+
+**「汝、我が名を呼べ。今こそ、仮面を剥がす時！」**
+
+この言葉こそが、Joker の本質を表している。仮面は偽装ではない。**解放**の象徴なのだ。
+`
+    },
+    {
+      id: 'mission-08',
+      title: 'パレス攻略 · 完全マニュアル',
+      date: '2026.04.20',
+      time: '11:00',
+      cover: '🏰',
+      tags: ['ガイド', 'パレス'],
+      excerpt: '潜入から脱出まで。全7ステップで学ぶ、失敗しないパレス攻略の教科書。',
+      content: `
+# パレス攻略 · 完全マニュアル
+
+> *「準備を怠るな。パレスは一度入れば、いつでも出られるわけじゃない。」*
+
+---
+
+## 攻略の7ステップ
+
+### STEP 1：情報収集
+
+現実世界でターゲットの**プロフィール**を徹底的に調べろ。
+
+- 名前、職業、人間関係
+- 活動拠点（ナビの「場所」になる）
+- 歪みの根源（パレスの「形」を推測する手がかり）
+
+### STEP 2：潜入
+
+初回潜入では**無理をしない**。安全ルートの確保が最優先。
+
+| フェーズ | 目標 | 所要時間目安 |
+|----------|------|-------------|
+| 偵察 | マップ作成・敵配置把握 | 30分 |
+| 安全確保 | セーフルーム発見 | 20分 |
+| 撤退 | アイテム補充・装備確認 | 10分 |
+
+### STEP 3：予告状
+
+パレスの最深部に到達したら、**予告状**を出す。
+
+> 予告状を出さない限り、トレジャーは実体化しない。
+
+---
+
+### STEP 4：決戦
+
+ボス戦の鉄則：
+
+1. **バフ・デバフを徹底** — 攻撃力UP・防御力DOWNは必須
+2. **弱点属性を全員でカバー** — 一人でも弱点を突けないと辛い
+3. **SPをケチるな** — ボス戦こそ最大火力で臨め
+4. **回復はこまめに** — HP半分を切ったら即回復
+
+### STEP 5：脱出
+
+トレジャーを奪取したら、**即座に離脱**。
+
+崩壊するパレスからの脱出はタイムリミットあり。道に迷うな。
+
+---
+
+## 持ち物チェックリスト
+
+- ⬜ 回復アイテム × 10 以上
+- ⬜ SP回復アイテム × 5 以上
+- ⬜ 復活アイテム × 3 以上
+- ⬜ 状態異常治療アイテム各種
+- ⬜ 予備武器（弾薬切れ対策）
+- ⬜ 鍵開けツール（宝箱用）
+
+---
+
+## よくある失敗
+
+1. **セーフルームをスキップする** → 全滅で最初から
+2. **雑魚戦でSPを使い切る** → ボス戦で詰む
+3. **予告状を出し忘れる** → トレジャーがないので帰還不可避
+
+> *「準備十分、警戒怠るな。それが怪盗団の掟だ。」*
+`
+    },
+    {
+      id: 'mission-09',
+      title: 'カジノパレス · 百万の罠',
+      date: '2026.04.12',
+      time: '18:30',
+      cover: '🎰',
+      tags: ['パレス', '攻略'],
+      excerpt: 'ギャンブルと欺瞞の迷宮。不正の軛に縛られた者たちのパレスに挑め。',
+      content: `
+# カジノパレス · 百万の罠
+
+> *「このパレスは——巨大な罠だ。だが、乗るしかない。」*
+
+---
+
+## パレス概要
+
+華やかなネオンに彩られたカジノ。しかしその輝きの裏には、**冷徹な計算**と**イカサマ**が渦巻いている。
+
+### パレスデータ
+
+| 項目 | 内容 |
+|------|------|
+| 支配者 | 検察官（司法の歪み） |
+| 構造 | 多層カジノフロア |
+| ギミック | サイコロ・スロット・チップ制 |
+| 危険度 | ★★★★★ |
+
+---
+
+## 固有ギミック
+
+### 1. チップシステム
+
+このパレスでは通常の戦闘だけでなく、**チップ**を集める必要がある。
+
+- 敵を倒すとチップをドロップ
+- 特定枚数で**ゲート**が開放
+- ボスエリア進入には**10万チップ**が必要
+
+### 2. サイコロバトル
+
+\`\`\`
+サイコロの目：
+  1-2 → 敵増援
+  3-4 → アイテム獲得
+  5-6 → ショートカット開放
+\`\`\`
+
+運任せに見えて、実は**スキル**で目を操作できる。
+
+### 3. イカサマを見抜け
+
+敵は平然と**イカサマ**を使う。しかし、観察力があれば逆手に取れる。
+
+> 「ギャンブルに必要なのは——運じゃない。**見極める目**だ。」
+
+---
+
+## ボス戦攻略
+
+### フェーズ1：通常戦闘
+
+属性攻撃で押し切る。バフ・デバフを怠るな。
+
+### フェーズ2：特殊ルール
+
+ボスがフィールドに**特殊ルール**を課す。ルールを理解し、それに従って戦え。
+
+1. 特定属性**禁止** → 別属性で弱点を狙う
+2. ダメージ**倍増** → この隙に一気に畳み掛ける
+3. **回復禁止** → 防御とアイテムで耐え抜く
+
+---
+
+> *「カジノの支配者は、己の不正を暴かれた時——最も無防備になる。」*
+`
+    },
+  ];
+
+  /* ═══════════════════════════════════════════════════════════
+     APPLICATION STATE
+     ═══════════════════════════════════════════════════════════ */
+  const state = {
+    articles: [],
+    activeArticleId: null,
+    isReaderOpen: false,
+    entranceComplete: false,   // true after all CSS entrance animations finish
+    scrollTicking: false,
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     API / DATA LAYER — Swappable with real API calls
+     ═══════════════════════════════════════════════════════════ */
+  async function fetchArticles() {
+    if (CONFIG.USE_API) {
+      // ── RESERVED: Replace with real API call ──
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}${CONFIG.ENDPOINTS.articles}`);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn('[PhantomArchive] API unavailable, using static data:', err.message);
+        // Fallback to static data
+      }
+    }
+    // Return static data (with slight delay to simulate network for animation feel)
+    return new Promise(resolve => {
+      setTimeout(() => resolve([...STATIC_ARTICLES]), 200);
+    });
+  }
+
+  async function fetchArticleById(id) {
+    if (CONFIG.USE_API) {
+      try {
+        const url = `${CONFIG.API_BASE_URL}${CONFIG.ENDPOINTS.articleById.replace(':id', id)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn('[PhantomArchive] API unavailable for article:', err.message);
+      }
+    }
+    return STATIC_ARTICLES.find(a => a.id === id) || null;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     RENDER ARTICLE BUTTONS
+     ═══════════════════════════════════════════════════════════ */
+  function renderArticleButtons(articles) {
+    const listEl = document.getElementById('articleList');
+    const countEl = document.getElementById('articleCount');
+
+    listEl.innerHTML = articles.map((art, i) => `
+      <button class="article-btn" data-id="${art.id}" data-index="${i}"
+              style="animation-delay: ${0.5 + i * 0.1}s;"
+              aria-label="Open article: ${art.title}">
+        <div class="art-meta">
+          <span class="art-date">${art.date}</span>
+          <span class="art-time">${art.time}</span>
+          ${art.tags.map(t => `<span class="art-tag">#${t}</span>`).join('')}
+        </div>
+        <div class="art-cover-row">
+          <div class="art-cover-icon">${art.cover}</div>
+          <div class="art-info">
+            <div class="art-title">${art.title}</div>
+            <div class="art-excerpt">${art.excerpt}</div>
+          </div>
+        </div>
+        <span class="art-arrow">▶</span>
+      </button>
+    `).join('');
+
+    countEl.textContent = `${articles.length} MISSIONS AVAILABLE`;
+
+    // Attach click handlers
+    listEl.querySelectorAll('.article-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        openArticle(id);
+      });
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     OPEN ARTICLE — Trigger layout transition + load content
+     ═══════════════════════════════════════════════════════════ */
+  async function openArticle(id) {
+    const article = await fetchArticleById(id);
+    if (!article) return;
+
+    state.activeArticleId = id;
+
+    // Switch layout
+    const appLayout = document.getElementById('appLayout');
+
+    if (!state.isReaderOpen) {
+      // First time: animate the layout transition
+      state.isReaderOpen = true;
+      appLayout.classList.add('reader-open');
+
+      // ── Set ALL buttons to fully visible (not cleared to '') ──
+      // Clearing would fall back to CSS opacity:0 (entrance animation start state)
+      document.querySelectorAll('.article-btn').forEach(btn => {
+        btn.style.opacity = '1';
+        btn.style.transform = 'none';
+      });
+
+      // After layout transition completes, load content with staggered animation
+      setTimeout(() => {
+        renderReaderContent(article);
+      }, 350);
+    } else {
+      // Already open: just switch content with animation
+      renderReaderContent(article);
+    }
+
+    // Highlight active button
+    document.querySelectorAll('.article-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-id') === id);
+    });
+
+    // Scroll reader to top
+    const readerPanel = document.getElementById('readerPanel');
+    if (readerPanel) readerPanel.scrollTop = 0;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CLOSE READER — Return to centered list view
+     ═══════════════════════════════════════════════════════════ */
+  function closeReader() {
+    const appLayout = document.getElementById('appLayout');
+    state.isReaderOpen = false;
+    state.activeArticleId = null;
+
+    // ── Set all buttons to visible (NOT cleared to '') ──
+    // Empty string falls back to CSS opacity:0 from entrance animation
+    document.querySelectorAll('.article-btn').forEach(btn => {
+      btn.classList.remove('active');
+      btn.style.opacity = '1';
+      btn.style.transform = 'none';
+    });
+
+    appLayout.classList.remove('reader-open');
+
+    // Reset reader content after transition
+    setTimeout(() => {
+      const mdContent = document.getElementById('mdContent');
+      const readerHeader = document.getElementById('readerHeader');
+      mdContent.innerHTML = `
+        <div class="reader-empty">
+          <div class="empty-diamond"></div>
+          <p class="empty-text">Select a mission<br>to begin reading</p>
+        </div>
+      `;
+      readerHeader.style.display = 'none';
+
+      // Re-run scroll handler to recalc button visibility after layout restores
+      updateScrollEffects();
+    }, 600);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     RENDER MARKDOWN CONTENT IN READER
+     ═══════════════════════════════════════════════════════════ */
+  function renderReaderContent(article) {
+    const mdContent = document.getElementById('mdContent');
+    const readerHeader = document.getElementById('readerHeader');
+    const rhDate = document.getElementById('rhDate');
+    const rhTag = document.getElementById('rhTag');
+    const rhTitle = document.getElementById('rhTitle');
+
+    // Update header
+    rhDate.textContent = `${article.date} · ${article.time}`;
+    rhTag.textContent = article.tags.map(t => `#${t}`).join(' ');
+    rhTitle.textContent = article.title;
+    readerHeader.style.display = 'block';
+
+    // Render markdown
+    let html;
+    if (typeof marked !== 'undefined') {
+      // Configure marked for safe rendering
+      marked.setOptions({
+        breaks: true,
+        gfm: true,
+      });
+      html = marked.parse(article.content);
+    } else {
+      // Fallback: basic HTML escape + line break conversion
+      html = article.content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      html = `<p>${html}</p>`;
+    }
+
+    mdContent.innerHTML = html;
+    mdContent.classList.remove('reader-open-anim');
+    void mdContent.offsetWidth; // Force reflow
+    mdContent.classList.add('reader-open-anim');
+    mdContent.style.opacity = '1';
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     SCROLL-DRIVEN FADE IN/OUT (continuous, like reference)
+     Only active AFTER CSS entrance animations finish, and only
+     when the reader is closed. Inline styles are cleared on
+     reader open/close to prevent conflicts.
+     ═══════════════════════════════════════════════════════════ */
+  function updateScrollEffects() {
+    const vh = window.innerHeight;
+    // Only apply when reader is closed AND entrance animations are done
+    if (state.isReaderOpen || !state.entranceComplete) return;
+
+    const buttons = document.querySelectorAll('.article-btn');
+    buttons.forEach(btn => {
+      const rect = btn.getBoundingClientRect();
+      const center = (rect.top + rect.bottom) / 2;
+      const ratio = center / vh;
+
+      let opacity;
+      if (ratio < 0.2) {
+        opacity = 0;
+      } else if (ratio < 0.35) {
+        opacity = (ratio - 0.2) / 0.15;
+      } else if (ratio < 0.65) {
+        opacity = 1;
+      } else if (ratio < 0.8) {
+        opacity = 1 - (ratio - 0.65) / 0.15;
+      } else {
+        opacity = 0;
+      }
+      opacity = Math.max(0, Math.min(1, opacity));
+
+      const translateY = (1 - opacity) * 40;
+      const scale = 0.93 + opacity * 0.07;
+
+      btn.style.opacity = opacity;
+      btn.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    });
+    state.scrollTicking = false;
+  }
+
+  function onScroll() {
+    if (!state.scrollTicking) {
+      requestAnimationFrame(updateScrollEffects);
+      state.scrollTicking = true;
+    }
+  }
+
+  function initScrollAnimations() {
+    // ── DO NOT run scroll effects immediately on page load ──
+    // Wait for all CSS entrance animations to complete.
+    // Max animation-delay: 0.5 + (N-1)*0.1 = 1.3s for 9 articles, + 0.5s duration = 1.8s.
+    // We add a 200ms buffer → 2.0s.
+    setTimeout(() => {
+      state.entranceComplete = true;
+      // Strip CSS animations so scroll handler's inline styles can take effect.
+      // (animation-fill-mode:forwards values override inline styles per CSS cascade)
+      document.querySelectorAll('.article-btn').forEach(btn => {
+        btn.style.animation = 'none';
+        btn.style.opacity = '1';
+        btn.style.transform = 'none';
+      });
+      // Initial scroll-effect run — only if reader is still closed
+      if (!state.isReaderOpen) {
+        updateScrollEffects();
+      }
+    }, 2000);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CLICK SPARKLE EFFECT (blue version)
+     ═══════════════════════════════════════════════════════════ */
+  function initSparkleEffect() {
+    document.addEventListener('click', function(e) {
+      const spark = document.createElement('div');
+      const size = Math.random() * 8 + 4;
+      const hue = Math.random() > 0.5 ? '0, 71, 224' : '91, 158, 255';
+      spark.style.cssText = `
+        position: fixed;
+        left: ${e.clientX - size/2}px;
+        top: ${e.clientY - size/2}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle, rgb(${hue}), rgba(${hue}, 0.4));
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 999;
+        animation: sparkFade 0.6s ease-out forwards;
+      `;
+      document.body.appendChild(spark);
+      setTimeout(() => spark.remove(), 600);
+    });
+
+    const sparkStyle = document.createElement('style');
+    sparkStyle.textContent = `
+      @keyframes sparkFade {
+        0%   { transform: scale(1); opacity: 1; }
+        100% { transform: scale(3); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(sparkStyle);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     KEYBOARD SHORTCUTS
+     ═══════════════════════════════════════════════════════════ */
+  function initKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+      // Escape to close reader
+      if (e.key === 'Escape' && state.isReaderOpen) {
+        closeReader();
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     INITIALIZATION
+     ═══════════════════════════════════════════════════════════ */
+  async function init() {
+    // Load articles
+    state.articles = await fetchArticles();
+    renderArticleButtons(state.articles);
+
+    // Set up back button
+    document.getElementById('readerBack').addEventListener('click', closeReader);
+
+    // Initialize effects
+    initScrollAnimations();
+    initSparkleEffect();
+    initKeyboardShortcuts();
+
+    // Log config (reserved port info)
+    console.log(
+      `%c◆ Phantom Archive ◆%c\nAPI endpoint reserved at: %c${CONFIG.API_BASE_URL}%c\nSet CONFIG.USE_API = true to enable backend integration.`,
+      'color: #0047E0; font-family: "Bebas Neue", sans-serif; font-size: 1.2em;',
+      '',
+      'color: #ffc107;',
+      ''
+    );
+  }
+
+  // Boot
+  init().catch(console.error);
+  </script>
+
+</body>
+</html>
