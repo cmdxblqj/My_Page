@@ -59,9 +59,11 @@ function applyScale(){if(!appWrapper)return;const s=Math.min(window.innerWidth/C
 function initResizeHandler(){let t;window.addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(applyScale,80);});window.addEventListener('orientationchange',()=>{setTimeout(applyScale,300);});}
 
 /* ═══════════════════════════════════ MP3 PLAYER ═══════════════════════════════════ */
-const AUDIO_PLAYLIST=[
-  {title:'Fabulous',artist:'BLU-SWING',src:'audio/BLU-SWING - Fabulous.mp3'}
-];
+// Use auto-generated playlist from data.js if available, otherwise fallback
+if(typeof AUDIO_PLAYLIST==='undefined'){var AUDIO_PLAYLIST=[
+  {title:'Fabulous',artist:'BLU-SWING',src:'audio/BLU-SWING - Fabulous.mp3'},
+  {title:"I Don't Want To Set The World On Fire",artist:'The Ink Spot',src:'audio/I Don\'t Want To Set The World On Fire-The Ink Spot.mp3'}
+];}
 let musicPlaying=false,currentTrackIdx=0;
 const mp3Player=document.getElementById('mp3Player'),mp3PlayBtn=document.getElementById('mp3Play'),
   mp3PrevBtn=document.getElementById('mp3Prev'),mp3NextBtn=document.getElementById('mp3Next'),
