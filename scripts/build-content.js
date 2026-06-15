@@ -90,16 +90,25 @@ function humanizeFilename(name) {
 
 // ─── Scan Audio Files ──────────────────────────────────────────────
 
+function hasCJK(str) {
+  // Detect Chinese/Japanese/Korean characters
+  return /[一-鿿぀-ゟ゠-ヿ가-힯]/.test(str);
+}
+
 function parseAudioFilename(filename) {
   const name = filename.replace(/\.mp3$/i, '');
 
   // Try "Artist - Title" format first (space-dash-space)
   const dashIdx = name.indexOf(' - ');
   if (dashIdx !== -1) {
-    return {
-      artist: name.substring(0, dashIdx).trim(),
-      title: name.substring(dashIdx + 3).trim()
-    };
+    const left = name.substring(0, dashIdx).trim();
+    const right = name.substring(dashIdx + 3).trim();
+    // Heuristic: if left side has CJK, assume "Title - Artist"
+    // (common in J-pop/C-pop naming where title comes first)
+    if (hasCJK(left)) {
+      return { title: left, artist: right };
+    }
+    return { artist: left, title: right };
   }
 
   // Try "Title-Artist" format (last dash, no spaces)
