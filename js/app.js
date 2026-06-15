@@ -127,11 +127,11 @@ codexState.activeId=null;}
 else if(currentPage==='gallery'){if(galleryState.isOpen)closeLightbox4();
 if(searchInput){searchInput.value='';searchQuery='';updateSearchClear();}}
 else if(currentPage==='persona'){subpageOverlay.scrollTop=0;}}
-function showOrbital(){resetSubpageState();currentPage='orbital';hideAllSubpages();hideSearchBar();appWrapper.classList.remove('hidden');appWrapper.classList.add('visible');waterCanvas.style.display='';if(escButton)escButton.querySelector('.esc-btn').classList.add('disabled');applyScale();requestAnimationFrame(()=>{subpageOverlay.style.transition='';subpage2Overlay.style.transition='';subpage3Overlay.style.transition='';subpage4Overlay.style.transition='';});}
-function showPersona(){currentPage='persona';appWrapper.classList.add('hidden');hideAllSubpages();hideSearchBar();subpageOverlay.style.transition='none';subpageOverlay.classList.add('active');subpageOverlay.style.opacity='1';waterCanvas.style.display='';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');updatePersonaSections();requestAnimationFrame(()=>{subpageOverlay.style.transition='';});}
-function showArchive(){currentPage='archive';appWrapper.classList.add('hidden');hideAllSubpages();showSearchBar();subpage2Overlay.style.transition='none';subpage2Overlay.classList.add('active');subpage2Overlay.style.opacity='1';waterCanvas.style.display='none';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');requestAnimationFrame(()=>{subpage2Overlay.style.transition='';});}
-function showCodex(){currentPage='codex';appWrapper.classList.add('hidden');hideAllSubpages();showSearchBar();subpage3Overlay.style.transition='none';subpage3Overlay.classList.add('active');subpage3Overlay.style.opacity='1';waterCanvas.style.display='none';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');requestAnimationFrame(()=>{subpage3Overlay.style.transition='';});}
-function showGallery(){currentPage='gallery';appWrapper.classList.add('hidden');hideAllSubpages();showSearchBar();subpage4Overlay.style.transition='none';subpage4Overlay.classList.add('active');subpage4Overlay.style.opacity='1';waterCanvas.style.display='none';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');requestAnimationFrame(()=>{subpage4Overlay.style.transition='';});}
+function showOrbital(){resetSubpageState();currentPage='orbital';hideAllSubpages();hideSearchBar();appWrapper.classList.remove('hidden');appWrapper.classList.add('visible');waterCanvas.style.display='';if(escButton)escButton.querySelector('.esc-btn').classList.add('disabled');applyScale();window._cmShow();if(window._cmSetZ)window._cmSetZ('255');document.body.appendChild(document.getElementById('cloudMistCanvas'));requestAnimationFrame(()=>{subpageOverlay.style.transition='';subpage2Overlay.style.transition='';subpage3Overlay.style.transition='';subpage4Overlay.style.transition='';});}
+function showPersona(){currentPage='persona';appWrapper.classList.add('hidden');hideAllSubpages();hideSearchBar();subpageOverlay.style.transition='none';subpageOverlay.classList.add('active');subpageOverlay.style.opacity='1';waterCanvas.style.display='';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');window._cmHide();updatePersonaSections();requestAnimationFrame(()=>{subpageOverlay.style.transition='';});}
+function showArchive(){currentPage='archive';appWrapper.classList.add('hidden');hideAllSubpages();showSearchBar();subpage2Overlay.style.transition='none';subpage2Overlay.classList.add('active');subpage2Overlay.style.opacity='1';waterCanvas.style.display='none';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');window._cmShow();const cm=document.getElementById('cloudMistCanvas');if(cm){cm.style.zIndex='0';subpage2Overlay.appendChild(cm);}requestAnimationFrame(()=>{subpage2Overlay.style.transition='';});}
+function showCodex(){currentPage='codex';appWrapper.classList.add('hidden');hideAllSubpages();showSearchBar();subpage3Overlay.style.transition='none';subpage3Overlay.classList.add('active');subpage3Overlay.style.opacity='1';waterCanvas.style.display='none';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');window._cmHide();requestAnimationFrame(()=>{subpage3Overlay.style.transition='';});}
+function showGallery(){currentPage='gallery';appWrapper.classList.add('hidden');hideAllSubpages();showSearchBar();subpage4Overlay.style.transition='none';subpage4Overlay.classList.add('active');subpage4Overlay.style.opacity='1';waterCanvas.style.display='none';if(escButton)escButton.querySelector('.esc-btn').classList.remove('disabled');window._cmHide();requestAnimationFrame(()=>{subpage4Overlay.style.transition='';});}
 
 /* ═══════════════════════════════════ PERSONA SCROLL ═══════════════════════════════════ */
 let personaTicking=false;
@@ -163,8 +163,8 @@ function drawBlocks(time){for(const b of blocks){const dx=Math.sin(time*0.001*b.
 function drawSurfaceLine(sY){ctx.beginPath();ctx.moveTo(0,sY[0]);for(let x=1;x<=W;x++)ctx.lineTo(x,sY[x]);ctx.strokeStyle='#0D0D0D';ctx.lineWidth=4.5;ctx.lineJoin='miter';ctx.miterLimit=5;ctx.stroke();ctx.beginPath();ctx.moveTo(0,sY[0]-5);for(let x=1;x<=W;x++)ctx.lineTo(x,sY[x]-5);ctx.strokeStyle='#FFFFFF';ctx.lineWidth=1.8;ctx.stroke();}
 function drawSurfaceDots(sY){if(!benDayPatterns.length)return;let minY=Infinity,maxY=-Infinity;for(let i=0;i<sY.length;i++){if(sY[i]<minY)minY=sY[i];if(sY[i]>maxY)maxY=sY[i];}const bT=Math.max(0,minY-10),bH=Math.min(H-bT,maxY-minY+40);if(bH<=0)return;ctx.save();ctx.globalAlpha=0.18;ctx.beginPath();ctx.rect(0,bT,W,bH);ctx.clip();ctx.fillStyle=ctx.createPattern(benDayPatterns[0],'repeat');ctx.fillRect(0,bT,W,bH);ctx.restore();}
 function waterRender(t,wl){ctx.clearRect(0,0,W,H);if(wl<=0.003)return;const sY=getSurfaceYArray(t,wl);ctx.save();clipToWater(sY);ctx.fillStyle='#140003';ctx.fillRect(0,0,W,H);drawBlocks(t);ctx.restore();const fS=0.88,fF=wl>fS?Math.max(0,1-(wl-fS)/(1.0-fS)):1;if(fF>0.02){drawSurfaceLine(sY);drawSurfaceDots(sY);}if(wl>0.06&&wl<0.96){const step=25;for(let x=0;x<=W;x+=step){const y=sY[x],pY=x>=step?sY[x-step]:y,nY=x+step<=W?sY[x+step]:y;if(y<pY-8&&y<nY-8&&Math.random()<0.25){ctx.fillStyle='rgba(255,255,255,0.7)';ctx.beginPath();const s=3+Math.random()*5;ctx.moveTo(x,y);ctx.lineTo(x-s*0.4,y-s);ctx.lineTo(x+s*0.4,y-s*0.6);ctx.closePath();ctx.fill();}}}}
-function triggerWaterTransition(dir){if(waterTransition)return;waterDirection=dir;waterTransition={phase:'rising',startTime:performance.now(),holdStart:0,waterLevel:WATER_IDLE};waterCanvas.classList.add('blocking');}
-function updateWaterTransition(now){if(!waterTransition)return;const e=now-waterTransition.startTime;if(waterTransition.phase==='rising'){const t=Math.min(e/RISE_DURATION,1);waterTransition.waterLevel=WATER_IDLE+(1-WATER_IDLE)*easeInOutCubic(t);if(t>=1){waterTransition.phase='holding';waterTransition.holdStart=now;const targetP=waterDirection==='toPersona'?'persona':'orbital';if(targetP==='persona')showPersona();else showOrbital();waterTransition._targetPage=targetP;}}if(waterTransition.phase==='holding'){waterTransition.waterLevel=1;const minHeld=now-waterTransition.holdStart>=MIN_HOLD;const pgReady=pageReadyFlags[waterTransition._targetPage];if(minHeld&&pgReady){waterTransition.phase='falling';waterTransition.startTime=now;}}if(waterTransition.phase==='falling'){const t=Math.min((now-waterTransition.startTime)/FALL_DURATION,1);waterTransition.waterLevel=1-(1-WATER_IDLE)*easeOutExpo(t);if(t>=1){waterTransition.waterLevel=WATER_IDLE;waterTransition=null;waterDirection=null;waterCanvas.classList.remove('blocking');}}}
+function triggerWaterTransition(dir){if(waterTransition)return;waterDirection=dir;waterTransition={phase:'rising',startTime:performance.now(),holdStart:0,waterLevel:WATER_IDLE};waterCanvas.classList.add('blocking');if(window._cmSetZ)window._cmSetZ('180');if(dir==='toPersona'){/* clouds stay visible during rising, hide at hold — handled in updateWaterTransition */}else{window._cmHide();}}
+function updateWaterTransition(now){if(!waterTransition)return;const e=now-waterTransition.startTime;if(waterTransition.phase==='rising'){const t=Math.min(e/RISE_DURATION,1);waterTransition.waterLevel=WATER_IDLE+(1-WATER_IDLE)*easeInOutCubic(t);if(t>=1){waterTransition.phase='holding';waterTransition.holdStart=now;const targetP=waterDirection==='toPersona'?'persona':'orbital';if(targetP==='persona'){showPersona();window._cmHide();}else{showOrbital();window._cmHide();}waterTransition._targetPage=targetP;}}if(waterTransition.phase==='holding'){waterTransition.waterLevel=1;const minHeld=now-waterTransition.holdStart>=MIN_HOLD;const pgReady=pageReadyFlags[waterTransition._targetPage];if(minHeld&&pgReady){waterTransition.phase='falling';waterTransition.startTime=now;if(waterDirection==='toOrbital'){window._cmShow();if(window._cmSetZ)window._cmSetZ('255');document.body.appendChild(document.getElementById('cloudMistCanvas'));}}}if(waterTransition.phase==='falling'){const t=Math.min((now-waterTransition.startTime)/FALL_DURATION,1);waterTransition.waterLevel=1-(1-WATER_IDLE)*easeOutExpo(t);if(t>=1){waterTransition.waterLevel=WATER_IDLE;waterTransition=null;waterDirection=null;waterCanvas.classList.remove('blocking');}}}
 let waterLastTime=performance.now();
 function waterAnimate(ts){const dt=Math.min(ts-waterLastTime,50);waterLastTime=ts;waterAnimTime+=dt;updateWaterTransition(ts);const wl=waterTransition?waterTransition.waterLevel:WATER_IDLE;waterRender(waterAnimTime,wl);requestAnimationFrame(waterAnimate);}
 
@@ -175,7 +175,198 @@ _createColumns(){this._calcGeometry();const P=['#0000FF','#0044FF','#0088FF','#0
 play(isRev){if(this._active)return Promise.resolve();this._active=true;this._reverse=isRev;this._createColumns();popOverlay.classList.add('active');const vh=window.innerHeight,buf=this._colWidth+2,sY=isRev?(vh+buf):-(vh+buf),hY=-this._halfCap;if(typeof gsap!=='undefined'){gsap.set(this._columns,{y:sY});return new Promise(r=>{gsap.to(this._columns,{y:hY,duration:0.6,stagger:{amount:0.4,from:isRev?'end':'start'},ease:'power2.inOut',onComplete:r});});}else{for(const c of this._columns)c.style.transform='translateY('+sY+'px)';return new Promise(r=>{let done=0;const total=this._columns.length;if(!total){r();return;}for(let i=0;i<total;i++){const c=this._columns[i],d=isRev?((total-1-i)/total)*0.4:(i/total)*0.4;c.offsetHeight;c.style.transition='transform 0.6s cubic-bezier(0.5,0,0.5,1) '+d+'s';c.style.transform='translateY('+hY+'px)';const onEnd=()=>{done++;if(done>=total){for(const cc of this._columns)cc.style.transition='';r();}};c.addEventListener('transitionend',onEnd,{once:true});setTimeout(()=>{c.removeEventListener('transitionend',onEnd);onEnd();},800+d*1000);}});}},
 finish(){if(!this._active)return Promise.resolve();const vh=window.innerHeight,buf=this._colWidth+2,eY=this._reverse?-(vh+buf):(vh+buf);return new Promise(r=>{const done=()=>{popOverlay.classList.remove('active');this._active=false;r();};if(typeof gsap!=='undefined'){gsap.to(this._columns,{y:eY,duration:0.4,stagger:{amount:0.2,from:this._reverse?'end':'start'},ease:'power2.in',onComplete:done});}else{let cnt=0;const total=this._columns.length;if(!total){done();return;}for(let i=0;i<total;i++){const c=this._columns[i],d=this._reverse?((total-1-i)/total)*0.2:(i/total)*0.2;c.style.transition='transform 0.4s ease-in '+d+'s';c.style.transform='translateY('+eY+'px)';const onEnd=()=>{cnt++;if(cnt>=total){for(const cc of this._columns)cc.style.transition='';done();}};c.addEventListener('transitionend',onEnd,{once:true});setTimeout(()=>{c.removeEventListener('transitionend',onEnd);onEnd();},600+d*1000);}}});}};
 
-async function triggerPopTransition(dir){if(PopTransition._active)return;const isRev=dir==='toOrbital';await PopTransition.play(isRev);if(dir==='toArchive')showArchive();else showOrbital();const targetP=dir==='toArchive'?'archive':'orbital';await waitForPageReady(targetP);await PopTransition.finish();}
+async function triggerPopTransition(dir){if(PopTransition._active)return;const isRev=dir==='toOrbital';window._cmSlideUp();await PopTransition.play(isRev);if(dir==='toArchive')showArchive();else showOrbital();const targetP=dir==='toArchive'?'archive':'orbital';await waitForPageReady(targetP);await PopTransition.finish();window._cmSlideDown();}
+
+/* ═══════════════════════ CLOUD MIST — Comic-book mist bands (independent from water animation) ═══════
+ *  Design: 5 overlapping horizontal mist bands stacked at the screen top.
+ *  Each band has its own undulating bottom edge & scrolls sideways at a different speed.
+ *  NOT a clone of the bottom water — mist is continuous horizontal layers, not debris blocks.
+ *
+ *  Pop-art treatment: flat blue fills → Ben-Day dots → bold comic outlines on each band edge
+ *                    → offset white highlights → mist droplets below lowest band.
+ *
+ *  Visible: orbital + subpage2 (Archive). Z-index: 255 (>PopTransition 250, <fixed-controls 300).
+ *  Loop NEVER stops — reads `currentPage` for fade. Zero polling overhead.
+ *  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ */
+(()=>{
+const STRIP_H=105;                   // compact cloud ceiling height
+// ── 5 mist bands, top→bottom: lighter→richer, slower→faster ──
+const BANDS=[
+  {yBase:-10, color:'#002FA7', speed:0.12, amp:7,  freq:0.004, phase:0.0},
+  {yBase:5,   color:'#003BC4', speed:0.19, amp:9,  freq:0.006, phase:1.2},
+  {yBase:20,  color:'#0047E0', speed:0.27, amp:11, freq:0.008, phase:2.5},
+  {yBase:36,  color:'#1A5CFF', speed:0.36, amp:13, freq:0.010, phase:4.0},
+  {yBase:50,  color:'#2962FF', speed:0.48, amp:15, freq:0.013, phase:5.7},
+];
+const OUTLINE='#000D2E';
+const HIGHLIGHT='rgba(255,255,255,0.75)';
+const CM_DROPLETS=28;                // mist droplets below the lowest band
+
+const cmCanvas=document.createElement('canvas');
+const cmCtx=cmCanvas.getContext('2d');
+cmCanvas.id='cloudMistCanvas';cmCanvas.setAttribute('aria-hidden','true');
+let cmW,cmH,cmBenDay,cmOpacity=0,cmTarget=0,cmTime=0,cmLastTime=0,cmRaf=null,cmDroplets=[];
+
+// ── Ben-Day dot pattern (single pattern — subtle, pop-art halftone) ──
+function cmMakeBenDay(){
+  const c=document.createElement('canvas');c.width=c.height=8;
+  const x=c.getContext('2d');
+  x.fillStyle='rgba(0,16,64,0.10)';x.fillRect(0,0,8,8);
+  x.fillStyle='rgba(0,16,64,0.14)';x.beginPath();x.arc(4,4,1.3,0,Math.PI*2);x.fill();
+  return c;
+}
+
+// ── Band bottom edge: smooth sine-based wave (no triWave/sawWave — not a water clone) ──
+function cmBandY(x,t,band){
+  const a=band.amp, f=band.freq, s=band.speed, p=band.phase;
+  let y=band.yBase+a*0.7;
+  y+=Math.sin(x*f+t*s*0.001+p)*a;
+  y+=Math.sin(x*f*1.7+t*s*0.0007+p*1.8)*a*0.45;
+  y+=Math.sin(x*f*3.1+t*s*0.0004+p*3.3)*a*0.22;
+  return Math.max(0,Math.min(STRIP_H+10,y));
+}
+
+// ── Build mist droplets (small dots hanging below bottom band) ──
+function cmBuildDroplets(){
+  cmDroplets=[];
+  for(let i=0;i<CM_DROPLETS;i++){
+    cmDroplets.push({
+      x:Math.random()*cmW,
+      y:STRIP_H*0.78+Math.random()*STRIP_H*0.35,
+      r:1.2+Math.random()*2.8,
+      sp:0.15+Math.random()*0.5,
+      phase:Math.random()*Math.PI*2,
+      oscAmp:3+Math.random()*8,
+      oscSpd:0.008+Math.random()*0.02,
+    });
+  }
+}
+
+function cmResize(){
+  cmW=cmCanvas.width=window.innerWidth;cmH=cmCanvas.height=window.innerHeight;
+  cmCanvas.style.width=cmW+'px';cmCanvas.style.height=cmH+'px';
+  cmBenDay=cmMakeBenDay();
+  cmBuildDroplets();
+}
+
+// ── Render one band: filled rectangle from top to undulating bottom edge ──
+function cmDrawBand(band,t){
+  // Build bottom-edge path
+  const step=4; // sample every 4px for performance
+  cmCtx.beginPath();
+  cmCtx.moveTo(0,0);
+  cmCtx.lineTo(cmW,0);
+  // Right-to-left along undulating bottom edge
+  for(let x=cmW;x>=0;x-=step){
+    cmCtx.lineTo(x,cmBandY(x,t,band));
+  }
+  cmCtx.closePath();
+
+  // ① Flat fill
+  cmCtx.fillStyle=band.color;
+  cmCtx.fill();
+
+  // ② Ben-Day overlay
+  if(cmBenDay){
+    cmCtx.globalAlpha=0.35;
+    cmCtx.fillStyle=cmCtx.createPattern(cmBenDay,'repeat');
+    cmCtx.fill();
+    cmCtx.globalAlpha=1;
+  }
+
+  // ③ Bold comic outline along bottom edge
+  cmCtx.beginPath();
+  cmCtx.moveTo(0,cmBandY(0,t,band));
+  for(let x=step;x<=cmW;x+=step){
+    cmCtx.lineTo(x,cmBandY(x,t,band));
+  }
+  cmCtx.strokeStyle=OUTLINE;
+  cmCtx.lineWidth=2.2;
+  cmCtx.lineJoin='round';
+  cmCtx.stroke();
+
+  // ④ Offset white highlight (comic-book shine)
+  cmCtx.beginPath();
+  cmCtx.moveTo(0,cmBandY(0,t,band)-3.5);
+  for(let x=step;x<=cmW;x+=step){
+    cmCtx.lineTo(x,cmBandY(x,t,band)-3.5);
+  }
+  cmCtx.strokeStyle=HIGHLIGHT;
+  cmCtx.lineWidth=1.3;
+  cmCtx.stroke();
+}
+
+// ── Render mist droplets ──
+function cmDrawDroplets(t){
+  cmCtx.fillStyle='rgba(255,255,255,0.35)';
+  for(const d of cmDroplets){
+    d.x+=d.sp;
+    if(d.x>cmW+10)d.x=-10;
+    const dy=Math.sin(t*0.001*d.oscSpd+d.phase)*d.oscAmp;
+    cmCtx.beginPath();
+    cmCtx.arc(d.x,d.y+dy,d.r,0,Math.PI*2);
+    cmCtx.fill();
+  }
+}
+
+// ── Main render: ALWAYS clears, only draws when cmLevel>0 (same pattern as waterRender) ──
+function cmRender(t){
+  cmCtx.clearRect(0,0,cmW,cmH);
+  if(cmLevel<=0)return;             // "hidden" = clear only, nothing drawn (like water idle)
+  cmCtx.globalAlpha=1;
+
+  // Subtle dark gradient base (no clip — gradient naturally ends at STRIP_H)
+  const cmGrad=cmCtx.createLinearGradient(0,0,0,STRIP_H);
+  cmGrad.addColorStop(0,'rgba(6,12,34,0.45)');
+  cmGrad.addColorStop(0.5,'rgba(6,12,34,0.15)');
+  cmGrad.addColorStop(1,'rgba(6,12,34,0)');
+  cmCtx.fillStyle=cmGrad;
+  cmCtx.fillRect(0,0,cmW,STRIP_H);
+
+  // Draw bands bottom-to-top (lower bands overlap upper ones)
+  // No clip — wave peaks extend naturally beyond STRIP_H
+  for(let i=BANDS.length-1;i>=0;i--){
+    cmDrawBand(BANDS[i],t);
+  }
+
+  // Mist droplets below the bands
+  cmDrawDroplets(t);
+
+  cmCtx.globalAlpha=1;
+}
+
+// ── Animation loop: same pattern as waterAnimate — always runs, always clears ──
+//    "Hidden" = clearRect + nothing drawn (like water at idle level).
+//    cmLevel is a LOCAL variable, controlled only by _cmShow() / _cmHide().
+let cmLevel=1;  // 1=draw, 0=clear-only (local — no window.xxx needed)
+
+function cmLoop(ts){
+  cmRaf=requestAnimationFrame(cmLoop);
+  const dt=Math.min(ts-cmLastTime,50);cmLastTime=ts;
+  cmTime+=dt;
+  cmRender(cmTime);                // always render (always clears)
+}
+
+function cmInit(){
+  cmResize();
+  cmCanvas.style.cssText='position:fixed;top:0;left:0;z-index:255;pointer-events:none;';
+  document.body.appendChild(cmCanvas);
+  window.addEventListener('resize',cmResize);
+  cmLastTime=performance.now();
+  cmLevel=1;
+  if(!cmRaf)cmRaf=requestAnimationFrame(cmLoop);
+}
+
+// Public API — the ONLY way to show/hide clouds
+window._cmShow=function(){cmLevel=1;};
+window._cmHide=function(){cmLevel=0;};
+window._cmSetZ=function(v){cmCanvas.style.zIndex=v;};
+// Slide for pop transition: clouds move up off-screen, then back down
+window._cmSlideUp=function(){if(typeof gsap!=='undefined')gsap.to(cmCanvas,{y:-STRIP_H-10,duration:0.6,ease:'power2.in',overwrite:true});else cmCanvas.style.transform='translateY(-'+(STRIP_H+10)+'px)';};
+window._cmSlideDown=function(){if(typeof gsap!=='undefined')gsap.to(cmCanvas,{y:0,duration:0.45,ease:'power2.out',overwrite:true});else cmCanvas.style.transform='translateY(0)';};
+
+window._cmInit=cmInit;
+})();
 
 /* ═══════════════════════════════════ ARCHIVE (SON2) INIT ═══════════════════════════════════ */
 
@@ -265,10 +456,10 @@ for(let y=0;y<cH;y+=sh){const dh=Math.min(sh,cH-y);let o=curtGetOffset(y,curtain
 curtainCtx.restore();}
 if(curtainState==='closing'||curtainState==='opening'){const p=curtainState==='closing'?curtainProgress:(1-curtainProgress);
 if(p>0.4){const sa=(p-0.4)/0.6;curtainCtx.strokeStyle=`rgba(0,255,68,${sa*0.9})`;curtainCtx.lineWidth=2.5;curtainCtx.beginPath();curtainCtx.moveTo(cW/2,30);curtainCtx.lineTo(cW/2,cH);curtainCtx.stroke();}}}
-function triggerCurtainTransition(dir){if(curtainActive)return;curtainActive=true;curtainDir=dir;curtainState='closing';curtainProgress=0;curtainStartTime=performance.now();curtainCanvas.classList.add('blocking');if(!curtainRaf){curtainRaf=requestAnimationFrame(curtainLoop);}}
+function triggerCurtainTransition(dir){if(curtainActive)return;curtainActive=true;curtainDir=dir;curtainState='closing';curtainProgress=0;curtainStartTime=performance.now();curtainCanvas.classList.add('blocking');if(dir==='toOrbital'){window._cmHide();}if(!curtainRaf){curtainRaf=requestAnimationFrame(curtainLoop);}}
 function curtainLoop(now){
-if(curtainState==='closing'){const e=(now-curtainStartTime)/CURT_CLOSE;curtainProgress=Math.min(1,e);if(curtainProgress>=1){curtainProgress=1;curtainState='closed';curtainStartTime=now;curtainLoading.classList.add('visible');}}
-else if(curtainState==='closed'){const minHeld=now-curtainStartTime>=CURT_HOLD;const targetP=curtainDir==='toCodex'?'codex':'orbital';const pgReady=pageReadyFlags[targetP];if(minHeld&&pgReady){curtainLoading.classList.remove('visible');if(curtainDir==='toCodex')showCodex();else showOrbital();curtainState='opening';curtainProgress=0;curtainStartTime=now;}}
+if(curtainState==='closing'){const e=(now-curtainStartTime)/CURT_CLOSE;curtainProgress=Math.min(1,e);if(curtainProgress>=1){curtainProgress=1;curtainState='closed';curtainStartTime=now;curtainLoading.classList.add('visible');if(curtainDir==='toCodex')window._cmHide();}}
+else if(curtainState==='closed'){const minHeld=now-curtainStartTime>=CURT_HOLD;const targetP=curtainDir==='toCodex'?'codex':'orbital';const pgReady=pageReadyFlags[targetP];if(minHeld&&pgReady){curtainLoading.classList.remove('visible');if(curtainDir==='toCodex')showCodex();else{showOrbital();window._cmShow();}curtainState='opening';curtainProgress=0;curtainStartTime=now;}}
 else if(curtainState==='opening'){const e=(now-curtainStartTime)/CURT_OPEN;curtainProgress=Math.min(1,e);if(curtainProgress>=1){curtainProgress=1;curtainState='open';curtainActive=false;curtainDir=null;curtainCanvas.classList.remove('blocking');}}
 curtDraw(now);
 if(curtainState!=='open'){curtainRaf=requestAnimationFrame(curtainLoop);}else{curtDraw(now);curtainRaf=null;}
@@ -351,7 +542,7 @@ initFadeIn();},400);}
 function poll(){if(document.readyState==='complete'){hideSplash();}else{requestAnimationFrame(poll);}}
 poll();setTimeout(hideSplash,3000);}
 function initFadeIn(){appWrapper.classList.add('visible');if(angleDisplay)angleDisplay.classList.add('revealed');setTimeout(revealScrollHint,300);if(fixedControls){fixedControls.classList.add('revealed');setTimeout(()=>fixedControls.classList.remove('revealed'),2200);}}
-function init(){buildButtons();applyScale();initScrollHandler();initKeyboardHandler();initTouchHandler();initResizeHandler();initMusicControl();initEscButton();initPersonaScroll();initSparkle();initArchive();initCodex();initGallery();initSearchBar();curtResize();initSplashScreen();updateAllButtons(currentAngle);requestAnimationFrame(orbitalAnimate);resizeWaterCanvas();window.addEventListener('resize',resizeWaterCanvas);requestAnimationFrame(waterAnimate);updatePersonaSections();}
+function init(){buildButtons();applyScale();initScrollHandler();initKeyboardHandler();initTouchHandler();initResizeHandler();initMusicControl();initEscButton();initPersonaScroll();initSparkle();initArchive();initCodex();initGallery();initSearchBar();curtResize();initSplashScreen();window._cmInit();updateAllButtons(currentAngle);requestAnimationFrame(orbitalAnimate);resizeWaterCanvas();window.addEventListener('resize',resizeWaterCanvas);requestAnimationFrame(waterAnimate);updatePersonaSections();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 
 window.OrbitalExperience={getButtons:()=>btnDataList,getWrapper:()=>appWrapper,getAngle:()=>currentAngle,setTargetAngle:a=>{targetAngle=a;},toggleMusic:()=>{togglePlay();},isMusicPlaying:()=>musicPlaying,getCurrentTrack:()=>currentTrackIdx,getPlaylist:()=>AUDIO_PLAYLIST,nextTrack:()=>playNext(),prevTrack:()=>playPrev(),refreshScale:applyScale,isSnapActive:()=>snapActive,hasScrolled:()=>hasScrolled,getCurrentPage:()=>currentPage,goToPersona:()=>{if(currentPage!=='persona')triggerWaterTransition('toPersona');},goToArchive:()=>{if(currentPage!=='archive')triggerPopTransition('toArchive');},goToCodex:()=>{if(currentPage!=='codex')triggerCurtainTransition('toCodex');},goToGallery:()=>{if(currentPage!=='gallery')triggerDiagTransition('toGallery');},goToOrbital:()=>{if(currentPage==='persona')triggerWaterTransition('toOrbital');else if(currentPage==='archive')triggerPopTransition('toOrbital');else if(currentPage==='codex')triggerCurtainTransition('toOrbital');else if(currentPage==='gallery')triggerDiagTransition('toOrbital');}};
