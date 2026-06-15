@@ -1,0 +1,19 @@
+# Node modules (if we add npm deps later)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts (optional — CI regenerates this)
+# js/data.js is intentionally tracked so the site works locally
+
+# Logs
+*.log
+无用/
